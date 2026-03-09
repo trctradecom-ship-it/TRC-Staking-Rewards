@@ -15,13 +15,13 @@
     </header>
 
     <section class="approve-section">
-        <h2>Step 1: Approve TRC</h2>
+        <h2>Approve TRC</h2>
         <input type="number" id="approveAmount" placeholder="Amount to approve">
-        <button id="approveBtn" class="btn">Approve TRC</button>
+        <button id="approveBtn" class="btn">Approve</button>
     </section>
 
     <section class="stake-section">
-        <h2>Step 2: Stake TRC</h2>
+        <h2>Stake TRC</h2>
         <div class="stake-buttons">
             <button class="btn stakeBtn" data-days="30">Stake 30 Days</button>
             <button class="btn stakeBtn" data-days="60">Stake 60 Days</button>
@@ -35,7 +35,6 @@
         <h2>Rewards Info</h2>
         <p>Total Rewards Pool: <span id="rewardPool">0</span> TRC</p>
         <p>Your Pending Reward: <span id="pendingReward">0</span> TRC</p>
-        <p>Total Claimed: <span id="claimedRewards">0</span> TRC</p>
         <button id="claimAllBtn" class="btn">Claim All Rewards</button>
     </section>
 
@@ -44,20 +43,20 @@
         <table>
             <thead>
                 <tr>
-                    <th>Stake Index</th>
+                    <th>Index</th>
                     <th>Amount</th>
                     <th>Weight</th>
                     <th>Unlock Time</th>
                     <th>Status</th>
-                    <th>Claim Reward</th>
-                    <th>Close Stake</th>
+                    <th>Claim</th>
+                    <th>Close</th>
                 </tr>
             </thead>
-            <tbody id="stakeHistory">
-            </tbody>
+            <tbody id="stakeHistory"></tbody>
         </table>
     </section>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
 <script src="app.js"></script>
 </body>
