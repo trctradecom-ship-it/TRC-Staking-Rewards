@@ -1,98 +1,77 @@
-* {
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0; 
-}
-
-body {
-  background: linear-gradient(135deg,#0f0f0f,#1a1a1a);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.container {
-  max-width: 550px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-h1 {
-  text-align: center;
-  color: #ffd700;
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 15px #ffd700;
-}
-
-.card {
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
   background: #1a1a1a;
+  color: #FFD700;
+}
+
+.container{
+  max-width: 700px;
+  margin:auto;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(255,204,0,0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-.card h2 {
-  color: #ffd700;
-  font-size: 1.2em;
+h1{
+  text-align:center;
+  color:#FFD700;
+  margin-bottom:20px;
 }
 
-.card input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #111;
-  color: #fff;
+.card{
+  background:#222;
+  padding:20px;
+  margin:15px 0;
+  border-radius:12px;
+  box-shadow: 0 0 15px rgba(255,215,0,0.4);
 }
 
-.card button {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #ffd700;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+button{
+  background: #FFD700;
+  color:#000;
+  padding:10px 15px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.2s;
+  font-weight:bold;
 }
 
-.card button:hover {
-  background: #ffea70;
-  transform: scale(1.05);
+button:hover{
+  background:#ffea00;
 }
 
-.stake-buttons button {
-  margin: 5px 5px 0 0;
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+  background:#333;
+  color:#fff;
 }
 
-.status-card {
-  max-height: 150px;
-  overflow-y: auto;
+.stake-buttons button{
+  margin:5px 3px;
+  font-size:14px;
 }
 
-.status-card #status {
-  font-size: 0.9em;
-  color: #00ffcc;
-  line-height: 1.4;
+.wallet-display{
+  font-size:14px;
+  background:#333;
+  padding:5px 10px;
+  border-radius:6px;
+  display:inline-block;
+  margin-top:10px;
+  word-break: break-all;
 }
 
-@media (max-width: 600px){
-  .container {
-    padding: 10px;
-  }
-
-  h1 {
-    font-size: 1.5em;
-  }
-
-  .card button {
-    font-size: 0.9em;
+/* Responsive */
+@media(max-width:480px){
+  .stake-buttons button{
+    display:block;
+    width:100%;
+    margin:5px 0;
   }
 }
