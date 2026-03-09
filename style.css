@@ -1,31 +1,206 @@
-body {
+/* -------------------- BASE -------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg,#0f0f0f,#1a1a1a);
-  color: #fff;
-  margin:0;
-  padding:0;
 }
 
-.container { max-width:1200px; margin:auto; padding:20px; }
+body {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+  color: #ffffff;
+  min-height: 100vh;
+}
 
-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-header h1 { color:#ffd700; }
-.wallet-btn { background: linear-gradient(90deg,#fcd34d,#f59e0b); border:none; padding:10px 20px; border-radius:12px; cursor:pointer; font-weight:bold; }
-.wallet-btn:hover { transform:scale(1.05); }
+/* -------------------- CONTAINER -------------------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-.stats { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
-.card { background: rgba(255,255,255,0.05); flex:1 1 150px; padding:15px; border-radius:12px; text-align:center; }
+/* -------------------- HEADER -------------------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
 
-.staking { background: rgba(255,255,255,0.05); padding:20px; border-radius:16px; margin-bottom:20px; }
-.stake-actions { display:flex; gap:10px; margin-bottom:10px; }
-.stake-actions input { flex:1; padding:8px; border-radius:10px; border:none; background: rgba(255,255,255,0.1); color:#fff; }
-.stake-buttons { display:flex; flex-wrap:wrap; gap:10px; }
-.btn { padding:10px 15px; border:none; border-radius:12px; cursor:pointer; background:linear-gradient(90deg,#fcd34d,#f59e0b); font-weight:bold; transition: transform 0.2s; }
-.btn:hover { transform:scale(1.05); }
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0px 0px 10px #ffd70044;
+}
 
-.stake-history table { width:100%; border-collapse:collapse; margin-bottom:20px; }
-.stake-history th, .stake-history td { padding:10px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.2); }
+.wallet-btn {
+  background: linear-gradient(90deg, #fcd34d, #f59e0b);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
 
-.chart-container { background: rgba(255,255,255,0.05); padding:20px; border-radius:16px; margin-bottom:20px; }
+.wallet-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 15px #fcd34d66;
+}
 
-.status { margin-top:10px; background: rgba(255,255,255,0.1); padding:10px; border-radius:12px; }
+/* -------------------- STATS CARDS -------------------- */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  flex: 1 1 150px;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0px 0px 15px #ffffff10;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 0px 25px #ffd70044;
+}
+
+.card h3 {
+  font-size: 1rem;
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* -------------------- STAKING SECTION -------------------- */
+.staking {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 18px;
+  margin-bottom: 25px;
+  box-shadow: 0px 0px 25px #ffffff10;
+}
+
+.staking h2 {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+  text-shadow: 0px 0px 10px #ffd70033;
+}
+
+.stake-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.stake-actions input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.stake-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(90deg, #fcd34d, #f59e0b);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 20px #fcd34d55;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* -------------------- STAKE HISTORY TABLE -------------------- */
+.stake-history table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.stake-history th, .stake-history td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.95rem;
+}
+
+.stake-history th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd700;
+}
+
+.stake-history tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* -------------------- CHART -------------------- */
+.chart-container {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0px 0px 25px #ffffff10;
+  margin-bottom: 25px;
+}
+
+.chart-container h2 {
+  color: #ffd700;
+  margin-bottom: 15px;
+  text-shadow: 0px 0px 10px #ffd70033;
+}
+
+/* -------------------- STATUS -------------------- */
+.status {
+  background: rgba(255,255,255,0.1);
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* -------------------- RESPONSIVE -------------------- */
+@media(max-width: 900px){
+  .stats { flex-direction: column; }
+  .stake-buttons { flex-direction: column; }
+  .stake-actions { flex-direction: column; }
+}
+
+@media(max-width: 500px){
+  header { flex-direction: column; gap: 10px; }
+  .wallet-btn { width: 100%; }
+}
