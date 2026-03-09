@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    background: #0a0a0a;
     color: #fff;
 }
 
@@ -9,7 +9,7 @@ body {
     max-width: 900px;
     margin: 40px auto;
     padding: 20px;
-    background: #1f1f1f;
+    background: #1c1c1c;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.6);
 }
@@ -23,17 +23,17 @@ header {
 
 h1 {
     margin: 0;
+    color: gold;
 }
 
 h2 {
     margin-bottom: 10px;
-    font-weight: 600;
 }
 
 .btn {
-    background: gold;
+    background: linear-gradient(90deg, #ffd700, #ffec00);
     color: #000;
-    font-weight: 600;
+    font-weight: 700;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -42,7 +42,7 @@ h2 {
 }
 
 .btn:hover {
-    background: #ffd700cc;
+    background: #ffe500;
 }
 
 input[type="number"] {
@@ -63,6 +63,7 @@ input[type="number"] {
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
 }
 
 th, td {
