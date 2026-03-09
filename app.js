@@ -1,128 +1,161 @@
-// === CONFIG ===
+let provider;
+let signer;
+let contract;
+let token;
+let user;
+let chart;
+
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const trcAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
-const stakingABI = [ /* Put your staking contract ABI here */ ];
-const trcABI = [ "function approve(address,uint256) returns(bool)" ];
+const stakingABI = [
+  "function accRewardPerWeight() view returns(uint256)",
+  "function rewardPool() view returns(uint256)",
+  "function totalWeight() view returns(uint256)",
+  "function pendingReward(address) view returns(uint256)",
+  "function stakes(address,uint256) view returns(uint256 amount,uint256 weight,uint256 unlockTime,uint256 rewardDebt,uint256 lastClaimTime,bool active)",
+  "function stake30(uint256 amount)",
+  "function stake60(uint256 amount)",
+  "function stake90(uint256 amount)",
+  "function stake150(uint256 amount)",
+  "function stake365(uint256 amount)",
+  "function claimAll()"
+];
 
-let provider, signer, user, stakingContract, trcContract, web3Modal;
+const tokenABI = [
+  "function approve(address,uint256) returns(bool)"
+];
 
-// === INIT Web3Modal ===
-function initWeb3Modal() {
-    web3Modal = new Web3Modal.default({
-        cacheProvider: true,
-        providerOptions: {
-            walletconnect: {
-                package: WalletConnectProvider.default,
-                options: {
-                    rpc: { 137: "https://polygon-rpc.com" },
-                    chainId: 137
-                }
-            }
-        }
-    });
-}
+// Web3Modal for multi-wallet connection
+let web3Modal;
 
-// === CONNECT WALLET ===
+window.addEventListener('load', async () => {
+  initChart();
+  const providerOptions = {
+    walletconnect: {
+      package: window.WalletConnectProvider.default,
+      options: {
+        rpc: {
+          137: "https://polygon-rpc.com/"
+        },
+        network: "matic"
+      }
+    }
+  };
+  web3Modal = new window.Web3Modal.default({
+    cacheProvider: false,
+    providerOptions
+  });
+
+  document.getElementById("connectWallet").addEventListener("click", connectWallet);
+});
+
 async function connectWallet() {
-    try {
-        const instance = await web3Modal.connect();
-        provider = new ethers.providers.Web3Provider(instance);
-        signer = provider.getSigner();
-        user = await signer.getAddress();
-
-        const network = await provider.getNetwork();
-        if(network.chainId !== 137){
-            alert("⚠ Switch wallet to Polygon network");
-            return;
-        }
-
-        document.getElementById("wallet").innerText = user.slice(0,6) + "..." + user.slice(-4);
-
-        stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
-        trcContract = new ethers.Contract(trcAddress, trcABI, signer);
-
-        // Load user data
-        loadData();
-
-    } catch(e){
-        console.error("Wallet connection failed", e);
-        alert("❌ Wallet connection failed. Use MetaMask or WalletConnect-compatible wallet.");
-    }
+  try {
+    const instance = await web3Modal.connect();
+    provider = new ethers.providers.Web3Provider(instance);
+    signer = provider.getSigner();
+    user = await signer.getAddress();
+    document.getElementById("walletDisplay").innerText = user;
+    contract = new ethers.Contract(stakingAddress, stakingABI, signer);
+    token = new ethers.Contract(trcAddress, tokenABI, signer);
+    updateStatus("Wallet connected: " + user);
+    loadData();
+    setInterval(loadData, 10000); // Refresh every 10s
+  } catch (e) {
+    updateStatus("❌ Wallet connection failed");
+    console.error(e);
+  }
 }
 
-// === LOAD DASHBOARD DATA ===
+function updateStatus(msg) {
+  document.getElementById("status").innerHTML = msg;
+}
+
+// Human readable TRC
+function human(v) {
+  return Number(ethers.utils.formatUnits(v,18)).toFixed(4);
+}
+
+// Chart.js
+function initChart() {
+  const ctx = document.getElementById("priceChart").getContext("2d");
+  chart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:["Start"],
+      datasets:[{
+        label:"TRC Price USD",
+        data:[0],
+        fill:true,
+        backgroundColor:"rgba(255, 215, 0,0.3)",
+        borderColor:"#ffd700",
+        tension:0.4
+      }]
+    },
+    options:{responsive:true,plugins:{legend:{display:true}}}
+  });
+}
+
+// Load Dashboard Data
 async function loadData() {
-    if(!stakingContract || !user) return;
+  if(!contract) return;
+  try {
+    const pool = await contract.rewardPool();
+    document.getElementById("rewardPool").innerText = human(pool);
 
-    try {
-        const pending = await stakingContract.pendingReward(user);
-        document.getElementById("pending").innerText = ethers.utils.formatUnits(pending,18);
+    const totalWeight = await contract.totalWeight();
+    document.getElementById("totalWeight").innerText = human(totalWeight);
 
-        const totalWeight = await stakingContract.totalWeight();
-        document.getElementById("totalWeight").innerText = totalWeight.toString();
+    const pending = await contract.pendingReward(user);
+    document.getElementById("pending").innerText = human(pending);
 
-        const rewardPool = await stakingContract.rewardPool();
-        document.getElementById("rewardPool").innerText = ethers.utils.formatUnits(rewardPool,18);
-
-    } catch(e) {
-        console.error("Error loading data", e);
-    }
+    // Optionally update chart with price simulation
+    const price = Math.random() * 2 + 1; // Replace with real price if available
+    chart.data.labels.push(new Date().toLocaleTimeString());
+    chart.data.datasets[0].data.push(price);
+    if(chart.data.labels.length>20){chart.data.labels.shift();chart.data.datasets[0].data.shift();}
+    chart.update();
+  } catch(e) {
+    console.error(e);
+  }
 }
 
-// === APPROVE TRC ===
+// Handle transaction
+async function handleTx(txPromise) {
+  try {
+    updateStatus("⏳ Transaction sent...");
+    const tx = await txPromise;
+    updateStatus(`Transaction sent. <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">View on PolygonScan</a>`);
+    await tx.wait();
+    updateStatus(`✅ Transaction Confirmed. <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">Open PolygonScan</a>`);
+    loadData();
+  } catch(e) {
+    console.error(e);
+    updateStatus("❌ Transaction failed or rejected");
+  }
+}
+
+// Approve TRC
 async function approveTRC(amount) {
-    if(!trcContract) return;
-    try{
-        const tx = await trcContract.approve(stakingAddress, ethers.utils.parseUnits(amount,18));
-        alert("✅ Approval sent. Wait for confirmation...");
-        await tx.wait();
-        alert("✅ TRC approved successfully!");
-    } catch(e){
-        console.error("Approval failed", e);
-        alert("❌ Approval failed");
-    }
+  if(!token) return updateStatus("Wallet not connected");
+  const value = ethers.utils.parseUnits(amount,18);
+  handleTx(token.approve(stakingAddress,value));
 }
 
-// === STAKE FUNCTIONS ===
-async function stake(amount, type) {
-    if(!stakingContract) return;
-    try{
-        let tx;
-        switch(type){
-            case "30": tx = await stakingContract.stake30(ethers.utils.parseUnits(amount,18)); break;
-            case "60": tx = await stakingContract.stake60(ethers.utils.parseUnits(amount,18)); break;
-            case "90": tx = await stakingContract.stake90(ethers.utils.parseUnits(amount,18)); break;
-            case "150": tx = await stakingContract.stake150(ethers.utils.parseUnits(amount,18)); break;
-            case "365": tx = await stakingContract.stake365(ethers.utils.parseUnits(amount,18)); break;
-        }
-        alert("⏳ Transaction sent...");
-        await tx.wait();
-        alert("✅ Stake successful!");
-        loadData();
-    } catch(e){
-        console.error("Stake failed", e);
-        alert("❌ Stake failed");
-    }
+// Stake
+async function stake(amount,days) {
+  if(!contract) return updateStatus("Wallet not connected");
+  const value = ethers.utils.parseUnits(amount,18);
+  if(days=="30") handleTx(contract.stake30(value));
+  if(days=="60") handleTx(contract.stake60(value));
+  if(days=="90") handleTx(contract.stake90(value));
+  if(days=="150") handleTx(contract.stake150(value));
+  if(days=="365") handleTx(contract.stake365(value));
 }
 
-// === CLAIM REWARD ===
+// Claim Rewards
 async function claimReward() {
-    if(!stakingContract) return;
-    try{
-        const tx = await stakingContract.claimReward();
-        alert("⏳ Claim sent...");
-        await tx.wait();
-        alert("✅ Reward claimed!");
-        loadData();
-    } catch(e){
-        console.error("Claim failed", e);
-        alert("❌ Claim failed");
-    }
+  if(!contract) return updateStatus("Wallet not connected");
+  handleTx(contract.claimAll());
 }
-
-// === CONNECT BUTTON EVENT ===
-document.getElementById("connectWallet").onclick = connectWallet;
-
-// INIT ON PAGE LOAD
-window.addEventListener("load", initWeb3Modal);
