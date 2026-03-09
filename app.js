@@ -3,7 +3,7 @@ let provider, signer, user, stakingContract, trcContract, chart;
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const trcAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
-const stakingAbi = [ /* staking ABI including accRewardPerWeight, pendingReward, getUserStakeCount, getStakeInfo, claimAll, claimStake, closeStake */ ];
+const stakingAbi = [ /* include your contract ABI with accRewardPerWeight, getUserStakeCount, getStakeInfo, claimAll, claim, closeStake */ ];
 const trcAbi = [
   "function approve(address,uint256) external returns(bool)",
   "function allowance(address owner,address spender) view returns(uint256)",
@@ -47,7 +47,7 @@ async function connectWallet(){
   }catch(e){ console.error(e); alert("Wallet connect failed"); }
 }
 
-// ------------------ LOAD USER DATA ------------------
+// ------------------ USER DATA ------------------
 async function loadUserData(){
   if(!user) return;
   try{
@@ -55,7 +55,7 @@ async function loadUserData(){
     document.getElementById("pendingReward").innerText = ethers.formatUnits(pending,18);
 
     const lastClaim = await stakingContract.lastClaimTime(user);
-    const interval = 30*24*60*60; // monthly
+    const interval = 30*24*60*60;
     const nextClaim = parseInt(lastClaim)+interval;
 
     document.getElementById("lastClaim").innerText = new Date(lastClaim*1000).toLocaleDateString();
@@ -104,7 +104,7 @@ async function handleTx(tx){
   }catch(e){ console.log(e); document.getElementById("status").innerText="❌ Tx failed"; }
 }
 
-// ------------------ LOAD STAKES ------------------
+// ------------------ STAKE HISTORY ------------------
 async function loadStakes(){
   if(!user) return;
   try{
