@@ -1,144 +1,188 @@
 let provider;
 let signer;
 let stakingContract;
-let trcContract;
+let tokenContract;
+let userAddress;
 let connected = false;
 
+// CONTRACT ADDRESSES
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
-const trcAddress     = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
+const trcAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
-// Minimal ABI for staking contract (include only used functions for now)
-const stakingABI = [
-    "function stake30(uint256 amount) nonpayable",
-    "function stake60(uint256 amount) nonpayable",
-    "function stake90(uint256 amount) nonpayable",
-    "function stake150(uint256 amount) nonpayable",
-    "function stake365(uint256 amount) nonpayable",
-    "function claimAll() nonpayable",
-    "function pendingReward(address user) view returns(uint256)",
-    "function getUserStakeCount(address user) view returns(uint256)",
-    "function getStakeInfo(address user,uint256 index) view returns(uint256 amount,uint256 weight,uint256 unlockTime,uint256 rewardDebt,uint256 lastClaimTime,bool active)"
-];
+// STAKING CONTRACT ABI (use the ABI you provided)
+const stakingABI = [ /* paste your ABI here */ ];
+const tokenABI = ["function approve(address,uint256) returns(bool)"];
 
-// Minimal ERC20 ABI (approve)
-const trcABI = [
-    "function approve(address spender,uint256 amount) returns(bool)"
-];
-
-// Update status messages
-function updateStatus(msg){
+// -----------------------
+// UTILITY FUNCTIONS
+// -----------------------
+function updateStatus(msg) {
     document.getElementById("status").innerHTML = msg;
 }
 
-// Check connection
-function checkConnection(){
-    if(!connected){
+function formatTRC(amount) {
+    return Number(ethers.utils.formatUnits(amount, 18)).toFixed(4);
+}
+
+function truncateAddress(addr) {
+    return addr.slice(0,6) + "..." + addr.slice(-4);
+}
+
+// -----------------------
+// CONNECT WALLET
+// -----------------------
+async function connectWallet() {
+    if (!window.ethereum) {
+        alert("Please install a Web3 wallet like MetaMask!");
+        return;
+    }
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    // update UI inside wallet card
+    document.getElementById("wallet").innerText = "Connected: " + truncateAddress(userAddress);
+
+    stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
+    tokenContract = new ethers.Contract(trcAddress, tokenABI, signer);
+
+    connected = true;
+    updateStatus("Wallet Connected ✅");
+
+    loadUserData();
+    loadStakeHistory();
+}
+
+// -----------------------
+// CHECK CONNECTION
+// -----------------------
+function checkConnection() {
+    if (!connected) {
         alert("Connect Wallet First");
         return false;
     }
     return true;
 }
 
-// Connect wallet function
-async function connectWallet(){
+// -----------------------
+// APPROVE TRC
+// -----------------------
+async function approveTRC() {
+    if (!checkConnection()) return;
+    const amount = document.getElementById("approveAmount").value;
+    if (!amount) { alert("Enter amount to approve"); return; }
+    const value = ethers.utils.parseUnits(amount, 18);
+
     try {
-        if(!window.ethereum){
-            alert("Install a Web3 Wallet (MetaMask, TrustWallet, Coinbase Wallet)");
-            return;
-        }
-
-        // Request account access
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        // Setup provider and signer
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-
-        const address = await signer.getAddress();
-
-        // Display wallet inside card box
-        const walletEl = document.getElementById("wallet");
-        walletEl.innerText = "Connected: " + address;
-        walletEl.style.fontSize = "14px";
-        walletEl.style.padding = "6px";
-        walletEl.style.borderRadius = "8px";
-        walletEl.style.background = "#333";
-
-        // Setup contracts
-        stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
-        trcContract     = new ethers.Contract(trcAddress, trcABI, signer);
-
-        connected = true;
-        updateStatus("Wallet Connected ✅");
-        
-        // Optionally load staking info here
-        loadStakingData();
-
-    } catch (err) {
-        console.error(err);
-        updateStatus("Error connecting wallet ❌: " + err.message);
-    }
-}
-
-// Example: approve TRC tokens
-async function approveTRC(amount){
-    if(!checkConnection()) return;
-    try{
-        const tx = await trcContract.approve(stakingAddress, ethers.utils.parseEther(amount));
-        updateStatus(`Approve Transaction Sent ✅<br>Hash: <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">${tx.hash}</a>`);
+        const tx = await tokenContract.approve(stakingAddress, value);
+        updateStatus(`Approval sent: <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">${tx.hash}</a>`);
         await tx.wait();
-        updateStatus(`Approve Confirmed ✅<br><a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">View on PolygonScan</a>`);
-    } catch(err){
-        updateStatus("Approve Failed ❌: " + err.message);
+        updateStatus("✅ Approved successfully!");
+    } catch (e) {
+        updateStatus("❌ Approval failed: " + e.message);
     }
 }
 
-// Example: stake TRC
-async function stake(amount, duration){
-    if(!checkConnection()) return;
-    if(duration !== 30 && duration !== 60 && duration !== 90 && duration !== 150 && duration !== 365){
-        alert("Invalid staking duration");
-        return;
-    }
-    try{
-        const tx = await stakingContract[`stake${duration}`](ethers.utils.parseEther(amount));
-        updateStatus(`Stake ${duration} Days Sent ✅<br>Hash: <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">${tx.hash}</a>`);
-        await tx.wait();
-        updateStatus(`Stake Confirmed ✅<br><a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">View on PolygonScan</a>`);
-        loadStakingData();
-    } catch(err){
-        updateStatus("Stake Failed ❌: " + err.message);
-    }
-}
+// -----------------------
+// STAKE FUNCTION
+// -----------------------
+async function stake(amountInputId, plan) {
+    if (!checkConnection()) return;
+    const amountTRC = document.getElementById(amountInputId).value;
+    if (!amountTRC || Number(amountTRC) <= 0) { alert("Enter valid TRC amount"); return; }
+    const value = ethers.utils.parseUnits(amountTRC, 18);
 
-// Load staking data for user
-async function loadStakingData(){
-    if(!connected) return;
-    try{
-        const userAddress = await signer.getAddress();
-        const stakeCount = await stakingContract.getUserStakeCount(userAddress);
-
-        const historyList = document.getElementById("historyList");
-        historyList.innerHTML = "";
-
-        for(let i=0;i<stakeCount;i++){
-            const info = await stakingContract.getStakeInfo(userAddress, i);
-            const amount = ethers.utils.formatEther(info.amount);
-            const unlock = new Date(info.unlockTime * 1000).toLocaleString();
-            const claimed = new Date(info.lastClaimTime * 1000).toLocaleString();
-            const active = info.active ? "Active" : "Closed";
-
-            const li = document.createElement("li");
-            li.innerHTML = `Stake #${i+1}: ${amount} TRC | ${active} | Unlock: ${unlock} | Last Claim: ${claimed}`;
-            historyList.appendChild(li);
+    try {
+        let tx;
+        switch(plan) {
+            case 30: tx = await stakingContract.stake30(value); break;
+            case 60: tx = await stakingContract.stake60(value); break;
+            case 90: tx = await stakingContract.stake90(value); break;
+            case 150: tx = await stakingContract.stake150(value); break;
+            case 365: tx = await stakingContract.stake365(value); break;
+            default: alert("Invalid plan"); return;
         }
-
-        // Pending reward
-        const pending = await stakingContract.pendingReward(userAddress);
-        document.getElementById("pendingReward").innerText = ethers.utils.formatEther(pending) + " TRC";
-
-    } catch(err){
-        console.error(err);
-        updateStatus("Load Data Failed ❌: " + err.message);
+        updateStatus(`Staking sent: <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">${tx.hash}</a>`);
+        await tx.wait();
+        updateStatus(`✅ Staked ${amountTRC} TRC for ${plan} days!`);
+        loadUserData();
+        loadStakeHistory();
+    } catch (e) {
+        updateStatus("❌ Stake failed: " + e.message);
     }
 }
+
+// -----------------------
+// CLAIM REWARDS
+// -----------------------
+async function claimRewards() {
+    if (!checkConnection()) return;
+    try {
+        const tx = await stakingContract.claimAll();
+        updateStatus(`Claim sent: <a href="https://polygonscan.com/tx/${tx.hash}" target="_blank">${tx.hash}</a>`);
+        await tx.wait();
+        updateStatus("✅ Rewards claimed!");
+        loadUserData();
+    } catch (e) {
+        updateStatus("❌ Claim failed: " + e.message);
+    }
+}
+
+// -----------------------
+// LOAD USER DATA
+// -----------------------
+async function loadUserData() {
+    if (!connected) return;
+
+    const totalWeight = await stakingContract.totalWeight();
+    const pool = await stakingContract.rewardPool();
+
+    document.getElementById("totalWeight").innerText = formatTRC(totalWeight);
+    document.getElementById("rewardPool").innerText = formatTRC(pool);
+
+    // example: compute pending rewards for first stake
+    const stakeCount = await stakingContract.getUserStakeCount(userAddress);
+    if (stakeCount > 0) {
+        const reward = await stakingContract.pendingReward(userAddress, 0);
+        document.getElementById("pendingReward").innerText = formatTRC(reward);
+        const stakeInfo = await stakingContract.getStakeInfo(userAddress, 0);
+        document.getElementById("lastClaim").innerText = new Date(stakeInfo.lastClaimTime*1000).toLocaleString();
+        document.getElementById("nextClaim").innerText = new Date((stakeInfo.lastClaimTime + 7*24*60*60)*1000).toLocaleString(); // example next claim weekly
+    }
+}
+
+// -----------------------
+// LOAD STAKE HISTORY
+// -----------------------
+async function loadStakeHistory() {
+    if (!connected) return;
+
+    const stakeCount = await stakingContract.getUserStakeCount(userAddress);
+    const historyContainer = document.getElementById("stakeHistory");
+    historyContainer.innerHTML = "";
+
+    for (let i = 0; i < stakeCount; i++) {
+        const stakeInfo = await stakingContract.getStakeInfo(userAddress, i);
+        const div = document.createElement("div");
+        div.classList.add("stakeEntry");
+        div.innerHTML = `
+            <p>Amount: ${formatTRC(stakeInfo.amount)} TRC</p>
+            <p>Weight: ${formatTRC(stakeInfo.weight)}</p>
+            <p>Unlock: ${new Date(stakeInfo.unlockTime*1000).toLocaleString()}</p>
+            <p>Last Claim: ${new Date(stakeInfo.lastClaimTime*1000).toLocaleString()}</p>
+            <p>Status: ${stakeInfo.active ? "Active ✅" : "Closed ❌"}</p>
+        `;
+        historyContainer.appendChild(div);
+    }
+}
+
+// -----------------------
+// AUTO REFRESH DATA
+// -----------------------
+setInterval(() => {
+    if (connected) {
+        loadUserData();
+        loadStakeHistory();
+    }
+}, 15000);
