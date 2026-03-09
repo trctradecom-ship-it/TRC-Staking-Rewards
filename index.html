@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRC Staking Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h1>💰 TRC Staking Dashboard</h1>
+
+  <!-- Wallet Connect -->
+  <div class="card">
+    <h2>1️⃣ Wallet</h2>
+    <button id="connectWalletBtn">Connect Wallet</button>
+    <p id="wallet">Not Connected</p>
+  </div>
+
+  <!-- Approve TRC -->
+  <div class="card">
+    <h2>2️⃣ Approve TRC</h2>
+    <input id="approveAmount" placeholder="Amount to Approve">
+    <button id="approveBtn">Approve</button>
+  </div>
+
+  <!-- Stake Options -->
+  <div class="card">
+    <h2>3️⃣ Stake Tokens</h2>
+    <div class="stake-buttons">
+      <button onclick="stake('30')">Stake 30 Days</button>
+      <button onclick="stake('60')">Stake 60 Days</button>
+      <button onclick="stake('90')">Stake 90 Days</button>
+      <button onclick="stake('150')">Stake 150 Days</button>
+      <button onclick="stake('365')">Stake 365 Days</button>
+    </div>
+  </div>
+
+  <!-- Claim Rewards -->
+  <div class="card">
+    <h2>4️⃣ Claim Rewards</h2>
+    <button id="claimBtn">Claim All Rewards</button>
+    <p id="nextClaim">Next Claim: --</p>
+  </div>
+
+  <!-- Status -->
+  <div class="card status-card">
+    <h2>Transaction Status</h2>
+    <div id="status">No Transactions Yet</div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
