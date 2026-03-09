@@ -1,5 +1,5 @@
 let provider;
-let signer;
+let signer;  
 let stakingContract;
 let tokenContract;
 let connected = false;
