@@ -1,206 +1,162 @@
-/* -------------------- BASE -------------------- */ 
+/* General Reset */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-  color: #ffffff;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #fff;
   min-height: 100vh;
-}
-
-/* -------------------- CONTAINER -------------------- */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 20px;
 }
 
-/* -------------------- HEADER -------------------- */
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Header */
 header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 
 header h1 {
   font-size: 2rem;
-  font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0px 0px 10px #ffd70044;
+  background: linear-gradient(90deg,#ffd700,#ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.wallet-btn {
-  background: linear-gradient(90deg, #fcd34d, #f59e0b);
+header button {
+  background-color: #ff8c00;
   border: none;
-  padding: 12px 25px;
-  border-radius: 15px;
-  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: 0.3s;
 }
 
-.wallet-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 0px 15px #fcd34d66;
+header button:hover {
+  background-color: #ffd700;
+  color: #000;
 }
 
-/* -------------------- STATS CARDS -------------------- */
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 25px;
+/* Dashboard Cards */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.05);
-  flex: 1 1 150px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #ffd700;
+}
+
+/* Action Section */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.action-card {
+  flex: 1;
+  min-width: 250px;
+  background: rgba(255,255,255,0.1);
   padding: 20px;
   border-radius: 15px;
   text-align: center;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0px 0px 15px #ffffff10;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 0px 25px #ffd70044;
-}
-
-.card h3 {
-  font-size: 1rem;
+.action-card h2 {
+  margin-bottom: 10px;
   color: #ffd700;
+}
+
+.action-card input {
+  width: 80%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
   margin-bottom: 10px;
 }
 
-.card p {
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-/* -------------------- STAKING SECTION -------------------- */
-.staking {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 25px;
-  border-radius: 18px;
-  margin-bottom: 25px;
-  box-shadow: 0px 0px 25px #ffffff10;
-}
-
-.staking h2 {
-  font-size: 1.5rem;
-  color: #ffd700;
-  margin-bottom: 15px;
-  text-shadow: 0px 0px 10px #ffd70033;
-}
-
-.stake-actions {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.stake-actions input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
+.action-card button {
+  padding: 10px 20px;
+  border-radius: 8px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background-color: #ff8c00;
   color: #fff;
-  font-size: 1rem;
-}
-
-.stake-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 15px;
-}
-
-.btn {
-  padding: 12px 20px;
-  border-radius: 15px;
+  font-weight: bold;
   cursor: pointer;
-  font-weight: 600;
-  border: none;
-  background: linear-gradient(90deg, #fcd34d, #f59e0b);
-  transition: all 0.2s ease-in-out;
+  transition: 0.3s;
 }
 
-.btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 0px 20px #fcd34d55;
+.action-card button:hover {
+  background-color: #ffd700;
+  color: #000;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.stake-buttons button {
+  margin: 5px 2px;
 }
 
-/* -------------------- STAKE HISTORY TABLE -------------------- */
-.stake-history table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 25px;
+/* Chart Section */
+.chart-section {
+  margin-bottom: 30px;
+}
+
+canvas {
   background: rgba(255,255,255,0.05);
   border-radius: 15px;
-  overflow: hidden;
+  padding: 15px;
 }
 
-.stake-history th, .stake-history td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  font-size: 0.95rem;
-}
-
-.stake-history th {
-  background: rgba(255,255,255,0.1);
-  color: #ffd700;
-}
-
-.stake-history tr:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* -------------------- CHART -------------------- */
-.chart-container {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0px 0px 25px #ffffff10;
-  margin-bottom: 25px;
-}
-
-.chart-container h2 {
-  color: #ffd700;
-  margin-bottom: 15px;
-  text-shadow: 0px 0px 10px #ffd70033;
-}
-
-/* -------------------- STATUS -------------------- */
+/* Status */
 .status {
   background: rgba(255,255,255,0.1);
-  padding: 12px;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 15px;
   text-align: center;
-  font-weight: 600;
-  margin-top: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
-/* -------------------- RESPONSIVE -------------------- */
-@media(max-width: 900px){
-  .stats { flex-direction: column; }
-  .stake-buttons { flex-direction: column; }
-  .stake-actions { flex-direction: column; }
+#status {
+  font-weight: bold;
+  color: #ffd700;
 }
 
-@media(max-width: 500px){
-  header { flex-direction: column; gap: 10px; }
-  .wallet-btn { width: 100%; }
+/* Responsive */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .actions {
+    flex-direction: column;
+  }
 }
