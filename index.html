@@ -4,101 +4,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking Dashboard</title>
-
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-<!-- Chart.js -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/web3modal"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Ethers.js + Web3Modal + WalletConnect -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
-<script src="https://unpkg.com/web3modal@2.5.6/dist/index.js"></script>
-<script src="https://unpkg.com/@walletconnect/web3-provider@2.8.1/dist/umd/index.min.js"></script>
-
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="container">
 
   <header>
     <h1>TRC Staking Dashboard</h1>
-    <button id="connectWallet" class="btn wallet-btn">Connect Wallet</button>
+    <button id="connectWallet">Connect Wallet</button>
+    <span id="wallet">Not Connected</span>
   </header>
 
-  <section class="stats">
+  <section class="dashboard">
     <div class="card">
-      <h3>Wallet</h3>
-      <p id="wallet">Not Connected</p>
+      <h2>Wallet Info</h2>
+      <p>Address: <span id="walletDisplay">-</span></p>
     </div>
+
     <div class="card">
-      <h3>Pending Rewards</h3>
-      <p id="pendingReward">0</p>
+      <h2>Pending Reward</h2>
+      <p><span id="pending">0</span> TRC</p>
     </div>
+
     <div class="card">
-      <h3>Last Claim</h3>
-      <p id="lastClaim">-</p>
+      <h2>Total Weight</h2>
+      <p><span id="totalWeight">0</span></p>
     </div>
+
     <div class="card">
-      <h3>Next Claim</h3>
-      <p id="nextClaim">-</p>
-    </div>
-    <div class="card">
-      <h3>Total Weight</h3>
-      <p id="totalWeight">0</p>
-    </div>
-    <div class="card">
-      <h3>Base / Temp Weight</h3>
-      <p id="baseWeight">0 / <span id="tempWeight">0</span></p>
+      <h2>Reward Pool</h2>
+      <p><span id="rewardPool">0</span> TRC</p>
     </div>
   </section>
 
-  <section class="staking">
-    <h2>Approve & Stake</h2>
-    <div class="stake-actions">
-      <input type="number" id="approveAmount" placeholder="Amount to Approve">
-      <button id="approveBtn" class="btn action-btn">Approve</button>
+  <section class="actions">
+    <div class="action-card">
+      <h2>Approve TRC</h2>
+      <input type="number" id="approveAmount" placeholder="Enter amount">
+      <button onclick="approveTRC(document.getElementById('approveAmount').value)">Approve</button>
     </div>
-    <div class="stake-buttons">
-      <button class="btn stakeBtn" data-days="30">Stake 30 Days</button>
-      <button class="btn stakeBtn" data-days="60">Stake 60 Days</button>
-      <button class="btn stakeBtn" data-days="90">Stake 90 Days</button>
-      <button class="btn stakeBtn" data-days="150">Stake 150 Days</button>
-      <button class="btn stakeBtn" data-days="365">Stake 365 Days</button>
+
+    <div class="action-card">
+      <h2>Stake TRC</h2>
+      <input type="number" id="stakeAmount" placeholder="Enter amount">
+      <div class="stake-buttons">
+        <button onclick="stake(document.getElementById('stakeAmount').value,'30')">Stake 30 Days</button>
+        <button onclick="stake(document.getElementById('stakeAmount').value,'60')">Stake 60 Days</button>
+        <button onclick="stake(document.getElementById('stakeAmount').value,'90')">Stake 90 Days</button>
+        <button onclick="stake(document.getElementById('stakeAmount').value,'150')">Stake 150 Days</button>
+        <button onclick="stake(document.getElementById('stakeAmount').value,'365')">Stake 365 Days</button>
+      </div>
     </div>
-    <div class="stake-actions">
-      <button id="claimAllBtn" class="btn action-btn">Claim All Rewards</button>
+
+    <div class="action-card">
+      <h2>Claim Reward</h2>
+      <button onclick="claimReward()">Claim Reward</button>
     </div>
   </section>
 
-  <section class="stake-history">
-    <h2>Stake History</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Amount</th>
-          <th>Weight</th>
-          <th>Unlock Time</th>
-          <th>Status</th>
-          <th>Claim</th>
-          <th>Close</th>
-        </tr>
-      </thead>
-      <tbody id="stakeHistory"></tbody>
-    </table>
-  </section>
-
-  <section class="chart-container">
+  <section class="chart-section">
     <h2>TRC Price Chart</h2>
     <canvas id="priceChart"></canvas>
   </section>
 
-  <div id="status" class="status"></div>
+  <section class="status">
+    <h2>Status</h2>
+    <div id="status">Waiting for wallet connection...</div>
+  </section>
 
 </div>
 
-<script src="app.js"></script>
+<script src="staking.js"></script>
 </body>
 </html>
