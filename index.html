@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking Dashboard</title>
-<link rel="stylesheet" href="staking.css">
+<link rel="stylesheet" href="dashboard.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -15,53 +15,53 @@
 
   <!-- Wallet Connect -->
   <div class="card">
-    <h3>Connect Wallet</h3>
+    <h3>1️⃣ Connect Wallet</h3>
     <button id="connectBtn">Connect Wallet</button>
-    <p id="wallet" class="wallet-display">Not connected</p>
+    <p id="wallet" class="wallet-address">Not Connected</p>
   </div>
 
-  <!-- Approve TRC -->
+  <!-- Token Approve -->
   <div class="card">
-    <h3>Approve TRC</h3>
-    <input id="approveAmount" type="number" placeholder="Enter TRC amount" min="0.01" step="0.01">
+    <h3>2️⃣ Approve TRC</h3>
+    <input id="approveAmount" type="number" placeholder="Amount to Approve (TRC)">
     <button id="approveBtn">Approve</button>
   </div>
 
   <!-- Stake Options -->
   <div class="card">
-    <h3>Stake TRC</h3>
-    <input id="stakeAmount" type="number" placeholder="Enter TRC to stake" min="0.01" step="0.01">
+    <h3>3️⃣ Stake TRC</h3>
     <div class="stake-buttons">
-      <button onclick="stake('30')">Stake 30 Days</button>
-      <button onclick="stake('60')">Stake 60 Days</button>
-      <button onclick="stake('90')">Stake 90 Days</button>
-      <button onclick="stake('150')">Stake 150 Days</button>
-      <button onclick="stake('365')">Stake 365 Days</button>
+      <button data-days="30">Stake 30 Days</button>
+      <button data-days="60">Stake 60 Days</button>
+      <button data-days="90">Stake 90 Days</button>
+      <button data-days="150">Stake 150 Days</button>
+      <button data-days="365">Stake 365 Days</button>
     </div>
+    <input id="stakeAmount" type="number" placeholder="Amount to Stake (TRC)">
   </div>
 
-  <!-- Claim Reward -->
+  <!-- Reward Info -->
   <div class="card">
-    <h3>Claim Reward</h3>
-    <button id="claimBtn">Claim All Rewards</button>
-    <p>Next Claim: <span id="nextClaim">--</span></p>
+    <h3>4️⃣ Reward & Claim</h3>
     <p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
+    <p>Next Claim Date: <span id="nextClaim">--</span></p>
+    <button id="claimBtn">Claim Reward</button>
   </div>
 
   <!-- Previous Claimed History -->
   <div class="card">
-    <h3>Previous Claimed History</h3>
-    <ul id="historyList"></ul>
+    <h3>Claimed History</h3>
+    <div id="claimHistory">No records yet.</div>
   </div>
 
   <!-- Transaction Status -->
   <div class="card">
     <h3>Transaction Status</h3>
-    <p id="status"></p>
+    <p id="status">Waiting for action...</p>
   </div>
 
 </div>
 
-<script src="staking.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>
