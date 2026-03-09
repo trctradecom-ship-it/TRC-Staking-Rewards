@@ -24,29 +24,41 @@ function initWeb3Modal(){
     }
   });
 }
-
-// ------------------ CONNECT WALLET ------------------
 async function connectWallet(){
-  try{
-    const instance = await web3Modal.connect();
-    provider = new ethers.providers.Web3Provider(instance);
-    signer = provider.getSigner();
-    user = await signer.getAddress();
+    try{
+        const instance = await web3Modal.connect();
+        provider = new ethers.providers.Web3Provider(instance);
+        signer = provider.getSigner();
+        user = await signer.getAddress();
 
-    const network = await provider.getNetwork();
-    if(network.chainId !== 137) alert("Switch to Polygon");
+        const network = await provider.getNetwork();
+        if(network.chainId !== 137){
+            alert("⚠ Please switch your wallet to Polygon network");
+        }
 
-    stakingContract = new ethers.Contract(stakingAddress, stakingAbi, signer);
-    trcContract = new ethers.Contract(trcAddress, trcAbi, signer);
+        // Update wallet address
+        document.getElementById("wallet").innerText = user.slice(0,6) + "..." + user.slice(-4);
 
-    document.getElementById("wallet").innerText = user.slice(0,6)+"..."+user.slice(-4);
+        // Initialize contracts
+        stakingContract = new ethers.Contract(stakingAddress, stakingAbi, signer);
+        trcContract = new ethers.Contract(trcAddress, trcAbi, signer);
 
-    loadUserData();
-    loadStakes();
-    initChart();
-  }catch(e){ console.error(e); alert("Wallet connect failed"); }
+        loadUserData();
+        loadStakes();
+
+    }catch(error){
+        console.error("Wallet connection failed:", error);
+        alert("❌ Wallet connection failed. Make sure you have a Web3 wallet installed.");
+    }
 }
 
+// Trigger on connect button
+document.getElementById("connectWallet").onclick = connectWallet;
+
+// Initialize Web3Modal on page load
+window.addEventListener("load", () => {
+    initWeb3Modal();
+});
 // ------------------ USER DATA ------------------
 async function loadUserData(){
   if(!user) return;
