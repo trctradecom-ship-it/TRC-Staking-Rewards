@@ -1,63 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"> 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking Dashboard</title>
+
+<!-- Fonts + Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
+
+<!-- Web3Modal + WalletConnect -->
+<script src="https://unpkg.com/web3modal@2.5.6/dist/index.js"></script>
+<script src="https://unpkg.com/@walletconnect/web3-provider@2.8.1/dist/umd/index.min.js"></script>
+
+<!-- CSS -->
 <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>TRC Staking Rewards</h1>
-        <button id="connectWallet" class="btn">Connect Wallet</button>
-    </header>
 
-    <section class="approve-section">
-        <h2>Approve TRC</h2>
-        <input type="number" id="approveAmount" placeholder="Amount to approve">
-        <button id="approveBtn" class="btn">Approve</button>
-    </section>
+  <header>
+    <h1>TRC Staking Dashboard</h1>
+    <button id="connectWallet" class="btn wallet-btn">Connect Wallet</button>
+  </header>
 
-    <section class="stake-section">
-        <h2>Stake TRC</h2>
-        <div class="stake-buttons">
-            <button class="btn stakeBtn" data-days="30">Stake 30 Days</button>
-            <button class="btn stakeBtn" data-days="60">Stake 60 Days</button>
-            <button class="btn stakeBtn" data-days="90">Stake 90 Days</button>
-            <button class="btn stakeBtn" data-days="150">Stake 150 Days</button>
-            <button class="btn stakeBtn" data-days="365">Stake 365 Days</button>
-        </div>
-    </section>
+  <section class="stats">
+    <div class="card">
+      <h3>TRC Price</h3>
+      <p id="price">$0.0000</p>
+    </div>
+    <div class="card">
+      <h3>Pending Rewards</h3>
+      <p id="pending">0.0000</p>
+    </div>
+    <div class="card">
+      <h3>Reward Pool</h3>
+      <p id="rewardPool">0.0000</p>
+    </div>
+    <div class="card">
+      <h3>Epoch</h3>
+      <p id="epoch">0</p>
+    </div>
+  </section>
 
-    <section class="rewards-section">
-        <h2>Rewards Info</h2>
-        <p>Total Rewards Pool: <span id="rewardPool">0</span> TRC</p>
-        <p>Your Pending Reward: <span id="pendingReward">0</span> TRC</p>
-        <button id="claimAllBtn" class="btn">Claim All Rewards</button>
-    </section>
+  <section class="epoch-timer">
+    <div class="timer">
+      <h3>Next Epoch</h3>
+      <p id="epochTimer">Loading...</p>
+    </div>
+    <div class="timer">
+      <h3>Next Claim</h3>
+      <p id="claimTimer">Loading...</p>
+    </div>
+  </section>
 
-    <section class="history-section">
-        <h2>Staking History</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Index</th>
-                    <th>Amount</th>
-                    <th>Weight</th>
-                    <th>Unlock Time</th>
-                    <th>Status</th>
-                    <th>Claim</th>
-                    <th>Close</th>
-                </tr>
-            </thead>
-            <tbody id="stakeHistory"></tbody>
-        </table>
-    </section>
+  <section class="staking">
+    <h2>Stake TRC</h2>
+    <div class="stake-actions">
+      <input type="number" id="approveAmount" placeholder="Amount to Approve">
+      <button id="approveBtn" class="btn action-btn">Approve</button>
+    </div>
+    <div class="stake-buttons">
+      <button class="btn stakeBtn" data-days="30">Stake 30 Days</button>
+      <button class="btn stakeBtn" data-days="60">Stake 60 Days</button>
+      <button class="btn stakeBtn" data-days="90">Stake 90 Days</button>
+      <button class="btn stakeBtn" data-days="150">Stake 150 Days</button>
+      <button class="btn stakeBtn" data-days="365">Stake 365 Days</button>
+    </div>
+    <div class="stake-actions">
+      <button id="claimAllBtn" class="btn action-btn">Claim All Rewards</button>
+    </div>
+  </section>
+
+  <section class="user-info">
+    <h2>User Info</h2>
+    <div class="info-grid">
+      <div><strong>Wallet:</strong> <span id="wallet">Not Connected</span></div>
+      <div><strong>Level:</strong> <span id="level">0</span></div>
+      <div><strong>Base Weight:</strong> <span id="baseWeight">0</span></div>
+      <div><strong>Temp Weight:</strong> <span id="tempWeight">0</span></div>
+      <div><strong>Total Weight:</strong> <span id="totalWeight">0</span></div>
+      <div><strong>Downline:</strong> <span id="downline">0</span></div>
+    </div>
+  </section>
+
+  <section class="chart-container">
+    <h2>TRC Price Chart</h2>
+    <canvas id="priceChart"></canvas>
+  </section>
+
+  <section class="stake-history">
+    <h2>Stake History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Amount</th>
+          <th>Weight</th>
+          <th>Unlock Time</th>
+          <th>Status</th>
+          <th>Claim</th>
+          <th>Close</th>
+        </tr>
+      </thead>
+      <tbody id="stakeHistory">
+      </tbody>
+    </table>
+  </section>
+
+  <div id="status" class="status"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
+<!-- JS -->
 <script src="app.js"></script>
+
 </body>
 </html>
