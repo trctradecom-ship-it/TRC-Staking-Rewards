@@ -5,24 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking Dashboard</title>
 
-<!-- Fonts + Icons -->
+<!-- Fonts + Chart -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Ethers.js -->
+<!-- Ethers.js + Web3Modal -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
-
-<!-- Web3Modal + WalletConnect -->
 <script src="https://unpkg.com/web3modal@2.5.6/dist/index.js"></script>
 <script src="https://unpkg.com/@walletconnect/web3-provider@2.8.1/dist/umd/index.min.js"></script>
 
-<!-- CSS -->
 <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
+
 <div class="container">
 
   <header>
@@ -32,36 +27,33 @@
 
   <section class="stats">
     <div class="card">
-      <h3>TRC Price</h3>
-      <p id="price">$0.0000</p>
+      <h3>Wallet</h3>
+      <p id="wallet">Not Connected</p>
     </div>
     <div class="card">
       <h3>Pending Rewards</h3>
-      <p id="pending">0.0000</p>
+      <p id="pendingReward">0</p>
     </div>
     <div class="card">
-      <h3>Reward Pool</h3>
-      <p id="rewardPool">0.0000</p>
+      <h3>Last Claim</h3>
+      <p id="lastClaim">-</p>
     </div>
     <div class="card">
-      <h3>Epoch</h3>
-      <p id="epoch">0</p>
-    </div>
-  </section>
-
-  <section class="epoch-timer">
-    <div class="timer">
-      <h3>Next Epoch</h3>
-      <p id="epochTimer">Loading...</p>
-    </div>
-    <div class="timer">
       <h3>Next Claim</h3>
-      <p id="claimTimer">Loading...</p>
+      <p id="nextClaim">-</p>
+    </div>
+    <div class="card">
+      <h3>Total Weight</h3>
+      <p id="totalWeight">0</p>
+    </div>
+    <div class="card">
+      <h3>Base / Temp Weight</h3>
+      <p id="baseWeight">0 / <span id="tempWeight">0</span></p>
     </div>
   </section>
 
   <section class="staking">
-    <h2>Stake TRC</h2>
+    <h2>Approve & Stake</h2>
     <div class="stake-actions">
       <input type="number" id="approveAmount" placeholder="Amount to Approve">
       <button id="approveBtn" class="btn action-btn">Approve</button>
@@ -78,23 +70,6 @@
     </div>
   </section>
 
-  <section class="user-info">
-    <h2>User Info</h2>
-    <div class="info-grid">
-      <div><strong>Wallet:</strong> <span id="wallet">Not Connected</span></div>
-      <div><strong>Level:</strong> <span id="level">0</span></div>
-      <div><strong>Base Weight:</strong> <span id="baseWeight">0</span></div>
-      <div><strong>Temp Weight:</strong> <span id="tempWeight">0</span></div>
-      <div><strong>Total Weight:</strong> <span id="totalWeight">0</span></div>
-      <div><strong>Downline:</strong> <span id="downline">0</span></div>
-    </div>
-  </section>
-
-  <section class="chart-container">
-    <h2>TRC Price Chart</h2>
-    <canvas id="priceChart"></canvas>
-  </section>
-
   <section class="stake-history">
     <h2>Stake History</h2>
     <table>
@@ -109,16 +84,19 @@
           <th>Close</th>
         </tr>
       </thead>
-      <tbody id="stakeHistory">
-      </tbody>
+      <tbody id="stakeHistory"></tbody>
     </table>
   </section>
 
+  <section class="chart-container">
+    <h2>TRC Price Chart</h2>
+    <canvas id="priceChart"></canvas>
+  </section>
+
   <div id="status" class="status"></div>
+
 </div>
 
-<!-- JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
