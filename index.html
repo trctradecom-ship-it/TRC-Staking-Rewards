@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking Dashboard</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="staking.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-  <h1>💰 TRC Staking Dashboard</h1>
+
+  <h1>TRC Staking Dashboard</h1>
 
   <!-- Wallet Connect -->
   <div class="card">
-    <h2>1️⃣ Wallet</h2>
-    <button id="connectWalletBtn">Connect Wallet</button>
-    <p id="wallet">Not Connected</p>
+    <h3>Connect Wallet</h3>
+    <button id="connectBtn">Connect Wallet</button>
+    <p id="wallet" class="wallet-display">Not connected</p>
   </div>
 
   <!-- Approve TRC -->
   <div class="card">
-    <h2>2️⃣ Approve TRC</h2>
-    <input id="approveAmount" placeholder="Amount to Approve">
+    <h3>Approve TRC</h3>
+    <input id="approveAmount" type="number" placeholder="Enter TRC amount" min="0.01" step="0.01">
     <button id="approveBtn">Approve</button>
   </div>
 
   <!-- Stake Options -->
   <div class="card">
-    <h2>3️⃣ Stake Tokens</h2>
+    <h3>Stake TRC</h3>
+    <input id="stakeAmount" type="number" placeholder="Enter TRC to stake" min="0.01" step="0.01">
     <div class="stake-buttons">
       <button onclick="stake('30')">Stake 30 Days</button>
       <button onclick="stake('60')">Stake 60 Days</button>
@@ -38,21 +40,28 @@
     </div>
   </div>
 
-  <!-- Claim Rewards -->
+  <!-- Claim Reward -->
   <div class="card">
-    <h2>4️⃣ Claim Rewards</h2>
+    <h3>Claim Reward</h3>
     <button id="claimBtn">Claim All Rewards</button>
-    <p id="nextClaim">Next Claim: --</p>
+    <p>Next Claim: <span id="nextClaim">--</span></p>
+    <p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
   </div>
 
-  <!-- Status -->
-  <div class="card status-card">
-    <h2>Transaction Status</h2>
-    <div id="status">No Transactions Yet</div>
+  <!-- Previous Claimed History -->
+  <div class="card">
+    <h3>Previous Claimed History</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <!-- Transaction Status -->
+  <div class="card">
+    <h3>Transaction Status</h3>
+    <p id="status"></p>
   </div>
 
 </div>
 
-<script src="app.js"></script>
+<script src="staking.js"></script>
 </body>
 </html>
