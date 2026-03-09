@@ -3,7 +3,7 @@ let signer;
 let stakingContract;
 let tokenContract;
 let connected = false;
-
+ 
 // Contracts
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const trcAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
