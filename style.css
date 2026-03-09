@@ -1,150 +1,31 @@
-/* Global */
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  background: linear-gradient(135deg,#0f0f0f,#1a1a1a);
   color: #fff;
-  margin: 0;
-  padding: 0;
+  margin:0;
+  padding:0;
 }
 
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
+.container { max-width:1200px; margin:auto; padding:20px; }
 
-h1, h2, h3 {
-  color: #ffd700;
-}
+header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+header h1 { color:#ffd700; }
+.wallet-btn { background: linear-gradient(90deg,#fcd34d,#f59e0b); border:none; padding:10px 20px; border-radius:12px; cursor:pointer; font-weight:bold; }
+.wallet-btn:hover { transform:scale(1.05); }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
+.stats { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
+.card { background: rgba(255,255,255,0.05); flex:1 1 150px; padding:15px; border-radius:12px; text-align:center; }
 
-.wallet-btn {
-  background: linear-gradient(90deg, #fcd34d, #f59e0b);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s;
-}
-.wallet-btn:hover {
-  transform: scale(1.05);
-}
+.staking { background: rgba(255,255,255,0.05); padding:20px; border-radius:16px; margin-bottom:20px; }
+.stake-actions { display:flex; gap:10px; margin-bottom:10px; }
+.stake-actions input { flex:1; padding:8px; border-radius:10px; border:none; background: rgba(255,255,255,0.1); color:#fff; }
+.stake-buttons { display:flex; flex-wrap:wrap; gap:10px; }
+.btn { padding:10px 15px; border:none; border-radius:12px; cursor:pointer; background:linear-gradient(90deg,#fcd34d,#f59e0b); font-weight:bold; transition: transform 0.2s; }
+.btn:hover { transform:scale(1.05); }
 
-/* Stats */
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-.card {
-  background: rgba(255,255,255,0.05);
-  flex: 1 1 150px;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-}
+.stake-history table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+.stake-history th, .stake-history td { padding:10px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.2); }
 
-/* Timers */
-.epoch-timer {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.timer {
-  background: rgba(255,255,255,0.05);
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-  flex: 1;
-  margin-right: 10px;
-}
-.timer:last-child {
-  margin-right: 0;
-}
+.chart-container { background: rgba(255,255,255,0.05); padding:20px; border-radius:16px; margin-bottom:20px; }
 
-/* Staking */
-.staking {
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-}
-.stake-actions {
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
-}
-.stake-actions input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-.stake-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: linear-gradient(90deg, #fcd34d, #f59e0b);
-  font-weight: bold;
-  transition: transform 0.2s;
-}
-.btn:hover {
-  transform: scale(1.05);
-}
-
-/* User Info */
-.user-info {
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-}
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-/* Chart */
-.chart-container {
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-}
-
-/* Stake History Table */
-.stake-history table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-.stake-history th, .stake-history td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-}
-
-/* Status */
-.status {
-  margin-top: 10px;
-  background: rgba(255,255,255,0.1);
-  padding: 10px;
-  border-radius: 12px;
-}
+.status { margin-top:10px; background: rgba(255,255,255,0.1); padding:10px; border-radius:12px; }
