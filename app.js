@@ -1,31 +1,31 @@
-let provider, signer, user, stakingContract, trcContract, chart;
-
+// === CONFIG ===
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const trcAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
-const stakingAbi = [ /* include your contract ABI with accRewardPerWeight, getUserStakeCount, getStakeInfo, claimAll, claim, closeStake */ ];
-const trcAbi = [
-  "function approve(address,uint256) external returns(bool)",
-  "function allowance(address owner,address spender) view returns(uint256)",
-  "function balanceOf(address account) view returns(uint256)"
-];
+const stakingABI = [ /* Put your staking contract ABI here */ ];
+const trcABI = [ "function approve(address,uint256) returns(bool)" ];
 
-let web3Modal;
+let provider, signer, user, stakingContract, trcContract, web3Modal;
 
-// ------------------ INIT ------------------
-function initWeb3Modal(){
-  web3Modal = new Web3Modal.default({
-    cacheProvider:true,
-    providerOptions:{
-      walletconnect:{
-        package: WalletConnectProvider.default,
-        options: { rpc: { 137:"https://polygon-rpc.com" }, chainId:137 }
-      }
-    }
-  });
+// === INIT Web3Modal ===
+function initWeb3Modal() {
+    web3Modal = new Web3Modal.default({
+        cacheProvider: true,
+        providerOptions: {
+            walletconnect: {
+                package: WalletConnectProvider.default,
+                options: {
+                    rpc: { 137: "https://polygon-rpc.com" },
+                    chainId: 137
+                }
+            }
+        }
+    });
 }
-async function connectWallet(){
-    try{
+
+// === CONNECT WALLET ===
+async function connectWallet() {
+    try {
         const instance = await web3Modal.connect();
         provider = new ethers.providers.Web3Provider(instance);
         signer = provider.getSigner();
@@ -33,139 +33,96 @@ async function connectWallet(){
 
         const network = await provider.getNetwork();
         if(network.chainId !== 137){
-            alert("⚠ Please switch your wallet to Polygon network");
+            alert("⚠ Switch wallet to Polygon network");
+            return;
         }
 
-        // Update wallet address
         document.getElementById("wallet").innerText = user.slice(0,6) + "..." + user.slice(-4);
 
-        // Initialize contracts
-        stakingContract = new ethers.Contract(stakingAddress, stakingAbi, signer);
-        trcContract = new ethers.Contract(trcAddress, trcAbi, signer);
+        stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
+        trcContract = new ethers.Contract(trcAddress, trcABI, signer);
 
-        loadUserData();
-        loadStakes();
+        // Load user data
+        loadData();
 
-    }catch(error){
-        console.error("Wallet connection failed:", error);
-        alert("❌ Wallet connection failed. Make sure you have a Web3 wallet installed.");
+    } catch(e){
+        console.error("Wallet connection failed", e);
+        alert("❌ Wallet connection failed. Use MetaMask or WalletConnect-compatible wallet.");
     }
 }
 
-// Trigger on connect button
-document.getElementById("connectWallet").onclick = connectWallet;
+// === LOAD DASHBOARD DATA ===
+async function loadData() {
+    if(!stakingContract || !user) return;
 
-// Initialize Web3Modal on page load
-window.addEventListener("load", () => {
-    initWeb3Modal();
-});
-// ------------------ USER DATA ------------------
-async function loadUserData(){
-  if(!user) return;
-  try{
-    const pending = await stakingContract.pendingReward(user);
-    document.getElementById("pendingReward").innerText = ethers.formatUnits(pending,18);
+    try {
+        const pending = await stakingContract.pendingReward(user);
+        document.getElementById("pending").innerText = ethers.utils.formatUnits(pending,18);
 
-    const lastClaim = await stakingContract.lastClaimTime(user);
-    const interval = 30*24*60*60;
-    const nextClaim = parseInt(lastClaim)+interval;
+        const totalWeight = await stakingContract.totalWeight();
+        document.getElementById("totalWeight").innerText = totalWeight.toString();
 
-    document.getElementById("lastClaim").innerText = new Date(lastClaim*1000).toLocaleDateString();
-    document.getElementById("nextClaim").innerText = new Date(nextClaim*1000).toLocaleDateString();
+        const rewardPool = await stakingContract.rewardPool();
+        document.getElementById("rewardPool").innerText = ethers.utils.formatUnits(rewardPool,18);
 
-    const totalWeight = await stakingContract.totalWeight();
-    document.getElementById("totalWeight").innerText = ethers.formatUnits(totalWeight,0);
-
-    const userData = await stakingContract.users(user);
-    document.getElementById("baseWeight").innerText = ethers.formatUnits(userData[2],0);
-    document.getElementById("tempWeight").innerText = ethers.formatUnits(userData[3],0);
-
-  }catch(e){ console.log(e); }
-}
-
-// ------------------ APPROVE ------------------
-async function approveTRC(){
-  const amount = document.getElementById("approveAmount").value;
-  if(!amount) return alert("Enter amount");
-  const tx = await trcContract.approve(stakingAddress,ethers.parseUnits(amount,18));
-  handleTx(tx);
-}
-
-// ------------------ STAKE ------------------
-async function stakeTRC(days){
-  const amount = prompt("Enter amount to stake:");
-  if(!amount) return;
-  const tx = await stakingContract[`stake${days}`](ethers.parseUnits(amount,18));
-  handleTx(tx);
-}
-
-// ------------------ CLAIM ------------------
-async function claimAllRewards(){ handleTx(stakingContract.claimAll()); }
-async function claimStake(index){ handleTx(stakingContract.claim(index)); }
-async function closeStake(index){ handleTx(stakingContract.closeStake(index)); }
-
-// ------------------ HANDLE TX ------------------
-async function handleTx(tx){
-  try{
-    const sent = await tx;
-    document.getElementById("status").innerHTML = `⏳ Transaction sent <a href="https://polygonscan.com/tx/${sent.hash}" target="_blank">View</a>`;
-    await sent.wait();
-    document.getElementById("status").innerHTML = `✅ Confirmed <a href="https://polygonscan.com/tx/${sent.hash}" target="_blank">View</a>`;
-    loadUserData();
-    loadStakes();
-  }catch(e){ console.log(e); document.getElementById("status").innerText="❌ Tx failed"; }
-}
-
-// ------------------ STAKE HISTORY ------------------
-async function loadStakes(){
-  if(!user) return;
-  try{
-    const count = await stakingContract.getUserStakeCount(user);
-    const tbody = document.getElementById("stakeHistory"); tbody.innerHTML="";
-    for(let i=0;i<count;i++){
-      const s = await stakingContract.getStakeInfo(user,i);
-      const canClaim = await stakingContract.canClaimReward(user,i);
-      const canClose = await stakingContract.canCloseStake(user,i);
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${i}</td>
-        <td>${ethers.formatUnits(s.amount,18)}</td>
-        <td>${s.weight}</td>
-        <td>${new Date(s.unlockTime*1000).toLocaleString()}</td>
-        <td>${s.active?"Active":"Closed"}</td>
-        <td><button class="btn" ${canClaim?"":"disabled"} onclick="claimStake(${i})">Claim</button></td>
-        <td><button class="btn" ${canClose?"":"disabled"} onclick="closeStake(${i})">Close</button></td>
-      `;
-      tbody.appendChild(row);
+    } catch(e) {
+        console.error("Error loading data", e);
     }
-  }catch(e){ console.log(e); }
 }
 
-// ------------------ CHART ------------------
-function initChart(){
-  const ctx = document.getElementById("priceChart").getContext("2d");
-  chart = new Chart(ctx,{
-    type:"line",
-    data:{ labels:["Start"], datasets:[{label:"TRC Price USD", data:[0], fill:true, tension:0.4}] },
-    options:{ responsive:true, plugins:{ legend:{display:true} } }
-  });
-  setInterval(updateChart,10000);
-}
-async function updateChart(){
-  try{
-    const price = await stakingContract.getTRCPriceUSD();
-    const usd = Number(ethers.formatUnits(price,18)).toFixed(4);
-    chart.data.labels.push(new Date().toLocaleTimeString());
-    chart.data.datasets[0].data.push(usd);
-    if(chart.data.labels.length>20){ chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
-    chart.update();
-  }catch(e){ console.log(e); }
+// === APPROVE TRC ===
+async function approveTRC(amount) {
+    if(!trcContract) return;
+    try{
+        const tx = await trcContract.approve(stakingAddress, ethers.utils.parseUnits(amount,18));
+        alert("✅ Approval sent. Wait for confirmation...");
+        await tx.wait();
+        alert("✅ TRC approved successfully!");
+    } catch(e){
+        console.error("Approval failed", e);
+        alert("❌ Approval failed");
+    }
 }
 
-// ------------------ EVENTS ------------------
+// === STAKE FUNCTIONS ===
+async function stake(amount, type) {
+    if(!stakingContract) return;
+    try{
+        let tx;
+        switch(type){
+            case "30": tx = await stakingContract.stake30(ethers.utils.parseUnits(amount,18)); break;
+            case "60": tx = await stakingContract.stake60(ethers.utils.parseUnits(amount,18)); break;
+            case "90": tx = await stakingContract.stake90(ethers.utils.parseUnits(amount,18)); break;
+            case "150": tx = await stakingContract.stake150(ethers.utils.parseUnits(amount,18)); break;
+            case "365": tx = await stakingContract.stake365(ethers.utils.parseUnits(amount,18)); break;
+        }
+        alert("⏳ Transaction sent...");
+        await tx.wait();
+        alert("✅ Stake successful!");
+        loadData();
+    } catch(e){
+        console.error("Stake failed", e);
+        alert("❌ Stake failed");
+    }
+}
+
+// === CLAIM REWARD ===
+async function claimReward() {
+    if(!stakingContract) return;
+    try{
+        const tx = await stakingContract.claimReward();
+        alert("⏳ Claim sent...");
+        await tx.wait();
+        alert("✅ Reward claimed!");
+        loadData();
+    } catch(e){
+        console.error("Claim failed", e);
+        alert("❌ Claim failed");
+    }
+}
+
+// === CONNECT BUTTON EVENT ===
 document.getElementById("connectWallet").onclick = connectWallet;
-document.getElementById("approveBtn").onclick = approveTRC;
-document.getElementById("claimAllBtn").onclick = claimAllRewards;
-document.querySelectorAll(".stakeBtn").forEach(btn=>{ btn.onclick=()=>stakeTRC(btn.dataset.days); });
 
-initWeb3Modal();
+// INIT ON PAGE LOAD
+window.addEventListener("load", initWeb3Modal);
