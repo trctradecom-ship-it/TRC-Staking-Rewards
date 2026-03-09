@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRC Staking Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>TRC Staking Rewards</h1>
+        <button id="connectWallet" class="btn">Connect Wallet</button>
+    </header>
+
+    <section class="approve-section">
+        <h2>Step 1: Approve TRC</h2>
+        <input type="number" id="approveAmount" placeholder="Amount to approve">
+        <button id="approveBtn" class="btn">Approve TRC</button>
+    </section>
+
+    <section class="stake-section">
+        <h2>Step 2: Stake TRC</h2>
+        <div class="stake-buttons">
+            <button class="btn stakeBtn" data-days="30">Stake 30 Days</button>
+            <button class="btn stakeBtn" data-days="60">Stake 60 Days</button>
+            <button class="btn stakeBtn" data-days="90">Stake 90 Days</button>
+            <button class="btn stakeBtn" data-days="150">Stake 150 Days</button>
+            <button class="btn stakeBtn" data-days="365">Stake 365 Days</button>
+        </div>
+    </section>
+
+    <section class="rewards-section">
+        <h2>Rewards Info</h2>
+        <p>Total Rewards Pool: <span id="rewardPool">0</span> TRC</p>
+        <p>Your Pending Reward: <span id="pendingReward">0</span> TRC</p>
+        <p>Total Claimed: <span id="claimedRewards">0</span> TRC</p>
+        <button id="claimAllBtn" class="btn">Claim All Rewards</button>
+    </section>
+
+    <section class="history-section">
+        <h2>Staking History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Stake Index</th>
+                    <th>Amount</th>
+                    <th>Weight</th>
+                    <th>Unlock Time</th>
+                    <th>Status</th>
+                    <th>Claim Reward</th>
+                    <th>Close Stake</th>
+                </tr>
+            </thead>
+            <tbody id="stakeHistory">
+            </tbody>
+        </table>
+    </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
