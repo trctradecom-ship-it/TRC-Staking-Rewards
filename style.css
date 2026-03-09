@@ -1,170 +1,67 @@
-/* Reset some defaults */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRC Staking Dashboard</title>
+<link rel="stylesheet" href="dashboard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+</head>
+<body>
 
-/* Body and background */
-body {
-  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
-  color: #FFD700;
-  line-height: 1.5;
-  min-height: 100vh;
-  padding: 10px;
-}
+<div class="container">
 
-/* Main container */
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
+  <h1>TRC Staking Dashboard</h1>
 
-/* Header */
-h1 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 25px;
-  color: #FFD700;
-  text-shadow: 0 0 15px #FFD700, 0 0 30px #FFA500;
-}
+  <!-- Wallet Connect -->
+  <div class="card">
+    <h3>1️⃣ Connect Wallet</h3>
+    <button id="connectBtn">Connect Wallet</button>
+    <p id="wallet" class="wallet-address">Not Connected</p>
+  </div>
 
-/* Cards */
-.card {
-  background: #1f1f1f;
-  padding: 25px 20px;
-  margin-bottom: 20px;
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
-              0 5px 15px rgba(0,0,0,0.3);
-  transition: transform 0.2s, box-shadow 0.3s;
-}
+  <!-- Token Approve -->
+  <div class="card">
+    <h3>2️⃣ Approve TRC</h3>
+    <input id="approveAmount" type="number" placeholder="Amount to Approve (TRC)">
+    <button id="approveBtn">Approve</button>
+  </div>
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6),
-              0 8px 25px rgba(0,0,0,0.4);
-}
+  <!-- Stake Options -->
+  <div class="card">
+    <h3>3️⃣ Stake TRC</h3>
+    <div class="stake-buttons">
+      <button data-days="30">Stake 30 Days</button>
+      <button data-days="60">Stake 60 Days</button>
+      <button data-days="90">Stake 90 Days</button>
+      <button data-days="150">Stake 150 Days</button>
+      <button data-days="365">Stake 365 Days</button>
+    </div>
+    <input id="stakeAmount" type="number" placeholder="Amount to Stake (TRC)">
+  </div>
 
-/* Card headings */
-.card h3 {
-  margin-bottom: 15px;
-  color: #FFD700;
-  text-shadow: 0 0 8px #FFD700;
-}
+  <!-- Reward Info -->
+  <div class="card">
+    <h3>4️⃣ Reward & Claim</h3>
+    <p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
+    <p>Next Claim Date: <span id="nextClaim">--</span></p>
+    <button id="claimBtn">Claim Reward</button>
+  </div>
 
-/* Inputs */
-input[type="number"] {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  background: #333;
-  color: #fff;
-  transition: 0.2s;
-}
+  <!-- Previous Claimed History -->
+  <div class="card">
+    <h3>Claimed History</h3>
+    <div id="claimHistory">No records yet.</div>
+  </div>
 
-input[type="number"]:focus {
-  outline: none;
-  box-shadow: 0 0 10px #FFD700;
-}
+  <!-- Transaction Status -->
+  <div class="card">
+    <h3>Transaction Status</h3>
+    <p id="status">Waiting for action...</p>
+  </div>
 
-/* Buttons */
-button {
-  background: linear-gradient(90deg, #FFD700, #FFA500);
-  color: #000;
-  padding: 12px 20px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  transition: 0.3s;
-  box-shadow: 0 0 10px rgba(255,215,0,0.4);
-}
+</div>
 
-button:hover {
-  background: linear-gradient(90deg, #FFA500, #FFD700);
-  box-shadow: 0 0 20px #FFD700, 0 5px 15px rgba(0,0,0,0.3);
-  transform: translateY(-2px);
-}
-
-/* Stake buttons container */
-.stake-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.stake-buttons button {
-  flex: 1;
-  font-size: 14px;
-}
-
-/* Wallet display */
-.wallet-display {
-  font-size: 14px;
-  background: #333;
-  padding: 6px 10px;
-  border-radius: 8px;
-  display: inline-block;
-  margin-top: 10px;
-  word-break: break-all;
-  box-shadow: 0 0 5px #FFD700;
-}
-
-/* Transaction status */
-#status {
-  font-size: 14px;
-  background: #222;
-  padding: 10px;
-  border-radius: 10px;
-  color: #FFD700;
-  box-shadow: 0 0 10px rgba(255,215,0,0.4);
-  word-break: break-word;
-}
-
-/* Claimed history list */
-#historyList {
-  list-style: none;
-  padding-left: 0;
-}
-
-#historyList li {
-  padding: 8px 10px;
-  background: #2a2a2a;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  font-size: 14px;
-  box-shadow: 0 0 5px rgba(255,215,0,0.3);
-}
-
-/* Pending reward / next claim */
-#pendingReward, #nextClaim {
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 8px #FFD700;
-}
-
-/* Responsive design */
-@media(max-width: 600px) {
-  .stake-buttons {
-    flex-direction: column;
-  }
-  button {
-    font-size: 15px;
-    padding: 10px;
-  }
-  h1 {
-    font-size: 2rem;
-  }
-  input[type="number"] {
-    font-size: 15px;
-    padding: 10px;
-  }
-}
+<script src="dashboard.js"></script>
+</body>
+</html>
