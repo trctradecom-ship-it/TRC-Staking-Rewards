@@ -1,4 +1,4 @@
-let provider;
+let provider; 
 let signer;
 let stakingContract;
 let tokenContract;
