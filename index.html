@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRC Staking</title>
 
 <link rel="stylesheet" href="style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-
 </head>
 
 <body>
@@ -20,59 +16,41 @@
 <h1>TRC Staking Platform</h1>
 
 <div class="card">
-
 <button id="connectBtn">Connect Wallet</button>
-
 <p id="wallet">Wallet not connected</p>
-
 <p>Your TRC Balance: <span id="balance">0</span></p>
-
 </div>
 
 <div class="card">
-
 <h2>Stake TRC</h2>
 
-<input id="stakeAmount" placeholder="Enter TRC amount">
+<input id="stakeAmount" type="number" placeholder="Enter TRC amount">
 
 <div class="stakeButtons">
-
 <button id="approveBtn">Approve</button>
-
-<button onclick="stake('stake30')">Stake 30D</button>
-<button onclick="stake('stake60')">Stake 60D</button>
-<button onclick="stake('stake90')">Stake 90D</button>
-<button onclick="stake('stake150')">Stake 150D</button>
-<button onclick="stake('stake365')">Stake 365D</button>
-
+<button onclick="stake('stake30')">30 Days</button>
+<button onclick="stake('stake60')">60 Days</button>
+<button onclick="stake('stake90')">90 Days</button>
+<button onclick="stake('stake150')">150 Days</button>
+<button onclick="stake('stake365')">365 Days</button>
 </div>
 
 </div>
 
 <div class="card">
-
 <h2>Rewards</h2>
-
 <p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
-
 <button id="claimBtn">Claim Rewards</button>
-
 </div>
 
 <div class="card">
-
 <h2>Your Stakes</h2>
-
 <div id="stakeList"></div>
-
 </div>
 
 <div class="card">
-
 <h2>Last 5 Claim History</h2>
-
 <ul id="claimHistory"></ul>
-
 </div>
 
 <p id="status">Ready</p>
