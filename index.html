@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Staking DApp</title>
+<title>Polygon Staking DApp</title>
 
-<!-- CSS -->
 <link rel="stylesheet" href="style.css">
 
-<!-- Ethers (MUST FIRST) -->
+<!-- ✅ LOAD ETHERS FIRST -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
 </head>
@@ -17,26 +16,20 @@
 
 <div class="container">
 
-<!-- HEADER -->
-<h2>🔥 Staking DApp</h2>
+<h2>🔥 Polygon Staking</h2>
 
 <!-- WALLET -->
 <div class="card">
 <button id="connectBtn">Connect Wallet</button>
 <p id="wallet">Not Connected</p>
-<p>Token Balance: <span id="balance">0</span></p>
+<p>Balance: <span id="balance">0</span></p>
 </div>
 
 <!-- STAKE -->
 <div class="card">
 <h3>Stake Tokens</h3>
 
-<input 
-id="stakeAmount" 
-type="number" 
-step="0.01" 
-placeholder="Enter amount (e.g. 10)" 
-/>
+<input id="stakeAmount" type="number" step="0.01" placeholder="Enter amount (e.g. 10)">
 
 <button id="approveBtn">Approve Token</button>
 
@@ -71,7 +64,7 @@ placeholder="Enter amount (e.g. 10)"
 
 </div>
 
-<!-- JS -->
+<!-- ✅ LOAD APP LAST -->
 <script src="app.js"></script>
 
 </body>
