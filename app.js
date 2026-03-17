@@ -1,123 +1,126 @@
 let provider;
 let signer;
-let userAddress;
-
 let stakingContract;
-let tokenContract;
+let connected = false;
 
-const stakingAddress="0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
-const tokenAddress="0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
+const stakingAddress = "YOUR_STAKING_CONTRACT";
 
-const stakingABI=[
+const stakingABI = [
 
-"function stake30(uint256)",
-"function stake60(uint256)",
-"function stake90(uint256)",
-"function stake150(uint256)",
-"function stake365(uint256)",
+{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake30","outputs":[],"stateMutability":"nonpayable","type":"function"},
 
-"function claimAll()",
+{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake60","outputs":[],"stateMutability":"nonpayable","type":"function"},
 
-"function getUserStakeCount(address)view returns(uint256)",
+{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake90","outputs":[],"stateMutability":"nonpayable","type":"function"},
 
-"function getStakeInfo(address,uint256)view returns(uint256,uint256,uint256,uint256,uint256,bool)",
+{"inputs":[],"name":"claimAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
 
-"function pendingReward(address,uint256)view returns(uint256)"
+{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStakeCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
 
-];
+{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getStakeInfo","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"weight","type":"uint256"},{"internalType":"uint256","name":"unlockTime","type":"uint256"},{"internalType":"uint256","name":"rewardDebt","type":"uint256"},{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"bool","name":"active","type":"bool"}],"stateMutability":"view","type":"function"},
 
-const tokenABI=[
-
-"function approve(address,uint256)"
+{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint256","name":"index","type":"uint256"}],"name":"pendingReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
 
 ];
 
-function updateStatus(msg){
+function updateStatus(message){
+document.getElementById("status").innerHTML = message;
+}
 
-document.getElementById("status").innerText=msg;
-
+function checkConnection(){
+if(!connected){
+alert("Connect Wallet First");
+return false;
+}
+return true;
 }
 
 async function connectWallet(){
 
 if(!window.ethereum){
-
 alert("Install MetaMask");
 return;
+}
+
+await ethereum.request({method:'eth_requestAccounts'});
+
+provider = new ethers.providers.Web3Provider(window.ethereum);
+signer = provider.getSigner();
+
+const address = await signer.getAddress();
+document.getElementById("wallet").innerText = "Connected: " + address;
+
+stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
+
+connected = true;
+
+updateStatus("Wallet Connected ✅");
+
+loadStakes();
+}
+
+async function loadStakes(){
+
+if(!checkConnection()) return;
+
+const count = await stakingContract.getUserStakeCount(await signer.getAddress());
+
+let html = "";
+
+for(let i=0;i<count;i++){
+
+const stake = await stakingContract.getStakeInfo(await signer.getAddress(),i);
+
+const reward = await stakingContract.pendingReward(await signer.getAddress(),i);
+
+const lastClaim = Number(stake.lastClaimTime);
+const nextClaim = lastClaim + (30*24*60*60);
+
+html += `
+<div class="stakeBox">
+
+Amount: ${ethers.utils.formatUnits(stake.amount,18)} TRC<br>
+
+Reward: ${ethers.utils.formatUnits(reward,18)} TRC<br>
+
+Last Claim:
+${new Date(lastClaim*1000).toLocaleString()}<br>
+
+Next Claim:
+${new Date(nextClaim*1000).toLocaleString()}<br>
+
+</div>
+`;
 
 }
 
-provider=new ethers.providers.Web3Provider(window.ethereum);
-
-await provider.send("eth_requestAccounts",[]);
-
-signer=provider.getSigner();
-
-userAddress=await signer.getAddress();
-
-document.getElementById("wallet").innerText=
-userAddress.slice(0,6)+"..."+userAddress.slice(-4);
-
-stakingContract=new ethers.Contract(stakingAddress,stakingABI,signer);
-
-tokenContract=new ethers.Contract(tokenAddress,tokenABI,signer);
-
-loadStakeHistory();
+document.getElementById("stakeList").innerHTML = html;
 
 }
 
-async function approveTRC(){
+async function stake30(){
+
+if(!checkConnection()) return;
+
+const amount = document.getElementById("stakeAmount").value;
 
 try{
 
-let amount=document.getElementById("approveAmount").value;
-
-const tx=await tokenContract.approve(
-stakingAddress,
+const tx = await stakingContract.stake30(
 ethers.utils.parseUnits(amount,18)
 );
 
-updateStatus("Approval pending...");
+updateStatus("Transaction Sent ✅");
 
 await tx.wait();
 
-updateStatus("✅ Approved");
+updateStatus("Stake Successful ✅");
 
-}catch{
+loadStakes();
 
-updateStatus("❌ Failed");
+}catch(error){
 
-}
-
-}
-
-async function stake30(){stake("stake30")}
-async function stake60(){stake("stake60")}
-async function stake90(){stake("stake90")}
-async function stake150(){stake("stake150")}
-async function stake365(){stake("stake365")}
-
-async function stake(method){
-
-try{
-
-let amount=document.getElementById("stakeAmount").value;
-
-const tx=await stakingContract[method](
-ethers.utils.parseUnits(amount,18)
-);
-
-updateStatus("Transaction pending...");
-
-await tx.wait();
-
-updateStatus("✅ Stake success");
-
-loadStakeHistory();
-
-}catch{
-
-updateStatus("❌ Transaction failed");
+updateStatus("Error ❌ " + error.message);
 
 }
 
@@ -125,66 +128,24 @@ updateStatus("❌ Transaction failed");
 
 async function claimRewards(){
 
+if(!checkConnection()) return;
+
 try{
 
-const tx=await stakingContract.claimAll();
+const tx = await stakingContract.claimAll();
 
-updateStatus("Claim pending...");
+updateStatus("Claim Sent ✅");
 
 await tx.wait();
 
-updateStatus("✅ Rewards claimed");
+updateStatus("Rewards Claimed ✅");
 
-loadStakeHistory();
+loadStakes();
 
-}catch{
+}catch(error){
 
-updateStatus("❌ Claim failed");
-
-}
+updateStatus("Error ❌ " + error.message);
 
 }
-
-async function loadStakeHistory(){
-
-const count=await stakingContract.getUserStakeCount(userAddress);
-
-let html="";
-
-for(let i=0;i<count;i++){
-
-let stake=await stakingContract.getStakeInfo(userAddress,i);
-
-let reward=await stakingContract.pendingReward(userAddress,i);
-
-let lastClaim=Number(stake[4]);
-
-let nextClaim=lastClaim+(30*24*60*60);
-
-let now=Math.floor(Date.now()/1000);
-
-let status=now>=nextClaim?"✅ Claim Available":"⏳ Wait";
-
-html+=`
-
-<div class="stakebox">
-
-Amount: ${ethers.utils.formatUnits(stake[0],18)} TRC <br>
-
-Reward: ${ethers.utils.formatUnits(reward,18)} TRC <br>
-
-Last Claim: ${new Date(lastClaim*1000).toLocaleString()} <br>
-
-Next Claim: ${new Date(nextClaim*1000).toLocaleString()} <br>
-
-Status: ${status}
-
-</div>
-
-`;
-
-}
-
-document.getElementById("stakeHistory").innerHTML=html;
 
 }
