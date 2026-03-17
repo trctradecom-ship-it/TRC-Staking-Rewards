@@ -1,67 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRC Staking Dashboard</title>
-<link rel="stylesheet" href="dashboard.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-</head>
-<body>
+*{
+box-sizing:border-box;
+}
 
-<div class="container">
+body{
 
-  <h1>TRC Staking Dashboard</h1>
+margin:0;
+background:#0f0f0f;
+color:white;
+font-family:Arial;
 
-  <!-- Wallet Connect -->
-  <div class="card">
-    <h3>1️⃣ Connect Wallet</h3>
-    <button id="connectBtn">Connect Wallet</button>
-    <p id="wallet" class="wallet-address">Not Connected</p>
-  </div>
+}
 
-  <!-- Token Approve -->
-  <div class="card">
-    <h3>2️⃣ Approve TRC</h3>
-    <input id="approveAmount" type="number" placeholder="Amount to Approve (TRC)">
-    <button id="approveBtn">Approve</button>
-  </div>
+.container{
 
-  <!-- Stake Options -->
-  <div class="card">
-    <h3>3️⃣ Stake TRC</h3>
-    <div class="stake-buttons">
-      <button data-days="30">Stake 30 Days</button>
-      <button data-days="60">Stake 60 Days</button>
-      <button data-days="90">Stake 90 Days</button>
-      <button data-days="150">Stake 150 Days</button>
-      <button data-days="365">Stake 365 Days</button>
-    </div>
-    <input id="stakeAmount" type="number" placeholder="Amount to Stake (TRC)">
-  </div>
+max-width:900px;
+margin:auto;
+padding:20px;
 
-  <!-- Reward Info -->
-  <div class="card">
-    <h3>4️⃣ Reward & Claim</h3>
-    <p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
-    <p>Next Claim Date: <span id="nextClaim">--</span></p>
-    <button id="claimBtn">Claim Reward</button>
-  </div>
+}
 
-  <!-- Previous Claimed History -->
-  <div class="card">
-    <h3>Claimed History</h3>
-    <div id="claimHistory">No records yet.</div>
-  </div>
+h1{
 
-  <!-- Transaction Status -->
-  <div class="card">
-    <h3>Transaction Status</h3>
-    <p id="status">Waiting for action...</p>
-  </div>
+text-align:center;
+margin-bottom:20px;
 
-</div>
+}
 
-<script src="dashboard.js"></script>
-</body>
-</html>
+.card{
+
+background:#1c1c1c;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+
+}
+
+button{
+
+padding:12px;
+margin:5px;
+border:none;
+border-radius:6px;
+background:#FFD700;
+font-weight:bold;
+cursor:pointer;
+
+}
+
+.connect{
+
+width:100%;
+
+}
+
+input{
+
+width:100%;
+padding:12px;
+margin-top:10px;
+margin-bottom:10px;
+border-radius:6px;
+border:none;
+
+}
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+
+}
+
+#stakeHistory{
+
+margin-top:10px;
+
+}
+
+.stakebox{
+
+background:#222;
+padding:12px;
+margin-top:10px;
+border-radius:6px;
+
+}
+
+/* Mobile */
+
+@media(max-width:600px){
+
+.grid{
+
+grid-template-columns:1fr;
+
+}
+
+.card{
+
+padding:15px;
+
+}
+
+h1{
+
+font-size:22px;
+
+}
+
+}
