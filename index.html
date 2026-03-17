@@ -5,24 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Staking DApp</title>
 
+<!-- CSS -->
 <link rel="stylesheet" href="style.css">
+
+<!-- Ethers (MUST FIRST) -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>🔥 Staking Platform</h2>
+<!-- HEADER -->
+<h2>🔥 Staking DApp</h2>
 
+<!-- WALLET -->
 <div class="card">
 <button id="connectBtn">Connect Wallet</button>
-<div id="wallet">Not Connected</div>
-<p>Balance: <span id="balance">0</span></p>
+<p id="wallet">Not Connected</p>
+<p>Token Balance: <span id="balance">0</span></p>
 </div>
 
+<!-- STAKE -->
 <div class="card">
-<input id="stakeAmount" placeholder="Enter amount">
+<h3>Stake Tokens</h3>
+
+<input 
+id="stakeAmount" 
+type="number" 
+step="0.01" 
+placeholder="Enter amount (e.g. 10)" 
+/>
 
 <button id="approveBtn">Approve Token</button>
 
@@ -33,25 +47,32 @@
 <button onclick="stake('stake365')">Stake 365 Days</button>
 </div>
 
+<!-- CLAIM -->
 <div class="card">
+<h3>Claim Rewards</h3>
 <button id="claimBtn">Claim Rewards</button>
 <p>Pending Reward: <span id="pendingReward">0</span></p>
 </div>
 
+<!-- STAKES -->
 <div class="card">
 <h3>Your Stakes</h3>
-<div id="stakeList"></div>
+<div id="stakeList">No stakes yet</div>
 </div>
 
+<!-- HISTORY -->
 <div class="card">
 <h3>Last 5 Claims</h3>
 <ul id="claimHistory"></ul>
 </div>
 
+<!-- STATUS -->
 <div id="status" class="status"></div>
 
 </div>
 
+<!-- JS -->
 <script src="app.js"></script>
+
 </body>
 </html>
