@@ -1,59 +1,86 @@
-body{
-font-family: Arial;
-background:#0d1117;
-color:#fff;
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family: Arial, sans-serif;
+background:#0d1117;
+color:#ffffff;
 text-align:center;
 }
 
 .container{
 max-width:500px;
 margin:auto;
-padding:20px;
+padding:15px;
 }
 
+/* CARD */
 .card{
 background:#161b22;
 padding:15px;
-margin-top:10px;
-border-radius:12px;
+margin-top:12px;
+border-radius:14px;
+box-shadow:0 0 10px rgba(0,0,0,0.4);
 }
 
+/* HEADINGS */
+h2{
+margin-bottom:10px;
+}
+
+h3{
+margin-bottom:10px;
+color:#58a6ff;
+}
+
+/* BUTTON */
 button{
 width:100%;
-padding:12px;
+padding:14px;
 margin-top:10px;
 border:none;
-border-radius:8px;
+border-radius:10px;
 background:#238636;
 color:#fff;
 font-size:16px;
+font-weight:bold;
 cursor:pointer;
+transition:0.2s;
 }
 
 button:hover{
 background:#2ea043;
+transform:scale(1.02);
 }
 
+/* INPUT */
 input{
 width:100%;
-padding:12px;
+padding:14px;
 margin-top:10px;
-border-radius:8px;
+border-radius:10px;
 border:none;
 background:#0d1117;
 color:#fff;
+font-size:16px;
+outline:none;
 }
 
+/* STAKE BOX */
 .stakeBox{
 background:#21262d;
-padding:10px;
+padding:12px;
 margin-top:10px;
 border-radius:10px;
 text-align:left;
 font-size:14px;
+line-height:1.6;
 }
 
+/* LIST */
 ul{
 list-style:none;
 padding:0;
@@ -61,13 +88,34 @@ padding:0;
 
 li{
 background:#21262d;
-margin-top:5px;
-padding:8px;
+margin-top:6px;
+padding:10px;
 border-radius:8px;
+font-size:14px;
 }
 
+/* STATUS */
 .status{
-margin-top:10px;
+margin-top:12px;
 color:#58a6ff;
+font-size:14px;
 word-break:break-all;
+}
+
+/* MOBILE */
+@media(max-width:500px){
+
+.container{
+padding:10px;
+}
+
+button{
+font-size:15px;
+padding:12px;
+}
+
+input{
+font-size:15px;
+}
+
 }
