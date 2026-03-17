@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRC Staking</title>
+<title>Staking DApp</title>
 
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
@@ -13,51 +13,45 @@
 
 <div class="container">
 
-<h1>TRC Staking Platform</h1>
+<h2>🔥 Staking Platform</h2>
 
 <div class="card">
 <button id="connectBtn">Connect Wallet</button>
-<p id="wallet">Wallet not connected</p>
-<p>Your TRC Balance: <span id="balance">0</span></p>
+<div id="wallet">Not Connected</div>
+<p>Balance: <span id="balance">0</span></p>
 </div>
 
 <div class="card">
-<h2>Stake TRC</h2>
+<input id="stakeAmount" placeholder="Enter amount">
 
-<input id="stakeAmount" type="number" placeholder="Enter TRC amount">
+<button id="approveBtn">Approve Token</button>
 
-<div class="stakeButtons">
-<button id="approveBtn">Approve</button>
-<button onclick="stake('stake30')">30 Days</button>
-<button onclick="stake('stake60')">60 Days</button>
-<button onclick="stake('stake90')">90 Days</button>
-<button onclick="stake('stake150')">150 Days</button>
-<button onclick="stake('stake365')">365 Days</button>
-</div>
-
+<button onclick="stake('stake30')">Stake 30 Days</button>
+<button onclick="stake('stake60')">Stake 60 Days</button>
+<button onclick="stake('stake90')">Stake 90 Days</button>
+<button onclick="stake('stake150')">Stake 150 Days</button>
+<button onclick="stake('stake365')">Stake 365 Days</button>
 </div>
 
 <div class="card">
-<h2>Rewards</h2>
-<p>Pending Reward: <span id="pendingReward">0</span> TRC</p>
 <button id="claimBtn">Claim Rewards</button>
+<p>Pending Reward: <span id="pendingReward">0</span></p>
 </div>
 
 <div class="card">
-<h2>Your Stakes</h2>
+<h3>Your Stakes</h3>
 <div id="stakeList"></div>
 </div>
 
 <div class="card">
-<h2>Last 5 Claim History</h2>
+<h3>Last 5 Claims</h3>
 <ul id="claimHistory"></ul>
 </div>
 
-<p id="status">Ready</p>
+<div id="status" class="status"></div>
 
 </div>
 
-<script src="staking.js"></script>
-
+<script src="app.js"></script>
 </body>
 </html>
