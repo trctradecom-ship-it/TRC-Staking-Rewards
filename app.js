@@ -6,8 +6,6 @@ let tokenContract;
 const stakingAddress = "0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const tokenAddress = "0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
-const REQUIRED_CHAIN = "0x89"; // Polygon
-
 const stakingABI = [
 "function stake30(uint256)",
 "function stake60(uint256)",
@@ -25,71 +23,48 @@ const tokenABI = [
 "function balanceOf(address) view returns(uint256)"
 ];
 
-let claimHistory = [];
 let connected = false;
+let claimHistory = [];
 
-// ================= STATUS =================
+// ===== DECIMAL HELPERS =====
+function toWei(value){
+return ethers.utils.parseUnits(value.toString(), 18);
+}
+
+function fromWei(value){
+return parseFloat(ethers.utils.formatUnits(value, 18));
+}
+
+// ===== STATUS =====
 function status(msg){
 document.getElementById("status").innerText = msg;
 }
 
-function checkConnection(){
-if(!connected){
-alert("Connect Wallet First");
-return false;
-}
-return true;
-}
-
-// ================= CONNECT =================
+// ===== CONNECT =====
 async function connectWallet(){
-try{
 
-status("Connecting wallet...");
-
-// wallet check
-if(typeof window.ethereum === "undefined"){
-alert("Open in MetaMask / Trust Wallet / TokenPocket");
+if(typeof ethers === "undefined"){
+status("Error ❌ Ethers not loaded");
 return;
 }
 
-// request account
+if(typeof window.ethereum === "undefined"){
+alert("Open in MetaMask / Trust Wallet browser");
+return;
+}
+
+try{
+
 const accounts = await window.ethereum.request({
 method: "eth_requestAccounts"
 });
 
-// switch network FIRST
-try{
-await window.ethereum.request({
-method: "wallet_switchEthereumChain",
-params: [{ chainId: REQUIRED_CHAIN }]
-});
-}catch(err){
-if(err.code === 4902){
-await window.ethereum.request({
-method: "wallet_addEthereumChain",
-params: [{
-chainId: REQUIRED_CHAIN,
-chainName: "Polygon Mainnet",
-nativeCurrency:{name:"MATIC",symbol:"MATIC",decimals:18},
-rpcUrls:["https://polygon-rpc.com"],
-blockExplorerUrls:["https://polygonscan.com"]
-}]
-});
-}else{
-throw err;
-}
-}
-
-// provider AFTER switch
-provider = new ethers.providers.Web3Provider(window.ethereum);
+provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 signer = provider.getSigner();
 
-// address
 const address = accounts[0];
 document.getElementById("wallet").innerText = address;
 
-// contracts
 stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
 tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
 
@@ -97,65 +72,56 @@ connected = true;
 
 status("Wallet Connected ✅");
 
-// load data
-await loadBalance();
-await loadStakes();
+loadBalance();
+loadStakes();
 
 }catch(err){
-console.error(err);
 status("Error ❌ " + err.message);
 }
 }
 
-// ================= BALANCE =================
+// ===== BALANCE =====
 async function loadBalance(){
 const user = await signer.getAddress();
 const bal = await tokenContract.balanceOf(user);
 
 document.getElementById("balance").innerText =
-parseFloat(ethers.utils.formatUnits(bal,18)).toFixed(4);
+fromWei(bal).toFixed(4);
 }
 
-// ================= APPROVE =================
+// ===== APPROVE =====
 async function approveTRC(){
-if(!checkConnection()) return;
 
 const amount = document.getElementById("stakeAmount").value;
 if(!amount) return alert("Enter amount");
 
 const tx = await tokenContract.approve(
 stakingAddress,
-ethers.utils.parseUnits(amount,18)
+toWei(amount)
 );
 
 status("Approving...");
 await tx.wait();
-
 status("Approved ✅");
 }
 
-// ================= STAKE =================
+// ===== STAKE =====
 async function stake(method){
-if(!checkConnection()) return;
 
 const amount = document.getElementById("stakeAmount").value;
 if(!amount) return alert("Enter amount");
 
-const tx = await stakingContract[method](
-ethers.utils.parseUnits(amount,18)
-);
+const tx = await stakingContract[method](toWei(amount));
 
 status("Staking...");
 await tx.wait();
 
 status("Staked ✅");
-
 loadStakes();
 }
 
-// ================= CLAIM =================
+// ===== CLAIM =====
 async function claimRewards(){
-if(!checkConnection()) return;
 
 const tx = await stakingContract.claimAll();
 
@@ -171,16 +137,15 @@ renderHistory();
 loadStakes();
 }
 
-// ================= HISTORY =================
+// ===== HISTORY =====
 function renderHistory(){
 let html="";
-claimHistory.forEach(h=> html+=`<li>${h}</li>`);
+claimHistory.forEach(h => html += `<li>${h}</li>`);
 document.getElementById("claimHistory").innerHTML = html;
 }
 
-// ================= STAKES =================
+// ===== STAKES =====
 async function loadStakes(){
-try{
 
 const user = await signer.getAddress();
 const count = await stakingContract.getUserStakeCount(user);
@@ -193,10 +158,10 @@ for(let i=0;i<count;i++){
 const s = await stakingContract.getStakeInfo(user,i);
 const r = await stakingContract.pendingReward(user,i);
 
-const amount = ethers.utils.formatUnits(s[0],18);
-const reward = ethers.utils.formatUnits(r,18);
+const amount = fromWei(s[0]);
+const reward = fromWei(r);
 
-total += parseFloat(reward);
+total += reward;
 
 const last = Number(s[4]);
 const next = last + 86400;
@@ -204,8 +169,8 @@ const next = last + 86400;
 html += `
 <div class="stakeBox">
 <b>Stake #${i}</b><br>
-Amount: ${parseFloat(amount).toFixed(4)}<br>
-Reward: ${parseFloat(reward).toFixed(4)}<br>
+Amount: ${amount.toFixed(4)}<br>
+Reward: ${reward.toFixed(4)}<br>
 Last Claim: ${new Date(last*1000).toLocaleString()}<br>
 Next Claim: ${new Date(next*1000).toLocaleString()}
 </div>`;
@@ -213,31 +178,11 @@ Next Claim: ${new Date(next*1000).toLocaleString()}
 
 document.getElementById("stakeList").innerHTML = html;
 document.getElementById("pendingReward").innerText = total.toFixed(4);
-
-}catch(e){
-console.log(e);
-}
 }
 
-// ================= INIT =================
-window.addEventListener("load", async ()=>{
-
+// ===== INIT =====
+window.onload = () => {
 document.getElementById("connectBtn").onclick = connectWallet;
 document.getElementById("approveBtn").onclick = approveTRC;
 document.getElementById("claimBtn").onclick = claimRewards;
-
-// auto reconnect
-if(window.ethereum){
-const accounts = await window.ethereum.request({method:"eth_accounts"});
-if(accounts.length > 0){
-connectWallet();
-}
-}
-
-});
-
-// ================= LISTEN =================
-if(window.ethereum){
-window.ethereum.on("accountsChanged", connectWallet);
-window.ethereum.on("chainChanged", ()=>location.reload());
-}
+};
