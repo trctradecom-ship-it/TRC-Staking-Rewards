@@ -23,52 +23,62 @@ const tokenABI = [
 "function balanceOf(address) view returns(uint256)"
 ];
 
-let connected = false;
 let claimHistory = [];
 
-// ===== DECIMAL HELPERS =====
-function toWei(value){
-return ethers.utils.parseUnits(value.toString(), 18);
+// ===== HELPERS =====
+function toWei(val){
+return ethers.utils.parseUnits(val.toString(),18);
 }
 
-function fromWei(value){
-return parseFloat(ethers.utils.formatUnits(value, 18));
+function fromWei(val){
+return parseFloat(ethers.utils.formatUnits(val,18));
 }
 
-// ===== STATUS =====
 function status(msg){
 document.getElementById("status").innerText = msg;
+}
+
+// ===== WAIT ETHERS FIX =====
+async function waitForEthers(){
+while(typeof ethers === "undefined"){
+await new Promise(r => setTimeout(r,100));
+}
 }
 
 // ===== CONNECT =====
 async function connectWallet(){
 
-if(typeof ethers === "undefined"){
-status("Error ❌ Ethers not loaded");
-return;
-}
+try{
 
-if(typeof window.ethereum === "undefined"){
+await waitForEthers();
+
+if(!window.ethereum){
 alert("Open in MetaMask / Trust Wallet browser");
 return;
 }
 
-try{
+status("Connecting...");
 
 const accounts = await window.ethereum.request({
-method: "eth_requestAccounts"
+method:"eth_requestAccounts"
 });
 
-provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+provider = new ethers.providers.Web3Provider(window.ethereum,"any");
 signer = provider.getSigner();
+
+const network = await provider.getNetwork();
+
+// ✅ Polygon check
+if(network.chainId !== 137){
+alert("Switch to Polygon Network");
+return;
+}
 
 const address = accounts[0];
 document.getElementById("wallet").innerText = address;
 
 stakingContract = new ethers.Contract(stakingAddress, stakingABI, signer);
 tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
-
-connected = true;
 
 status("Wallet Connected ✅");
 
@@ -95,10 +105,7 @@ async function approveTRC(){
 const amount = document.getElementById("stakeAmount").value;
 if(!amount) return alert("Enter amount");
 
-const tx = await tokenContract.approve(
-stakingAddress,
-toWei(amount)
-);
+const tx = await tokenContract.approve(stakingAddress,toWei(amount));
 
 status("Approving...");
 await tx.wait();
@@ -140,7 +147,7 @@ loadStakes();
 // ===== HISTORY =====
 function renderHistory(){
 let html="";
-claimHistory.forEach(h => html += `<li>${h}</li>`);
+claimHistory.forEach(h=> html += `<li>${h}</li>`);
 document.getElementById("claimHistory").innerHTML = html;
 }
 
@@ -181,7 +188,7 @@ document.getElementById("pendingReward").innerText = total.toFixed(4);
 }
 
 // ===== INIT =====
-window.onload = () => {
+window.onload = function(){
 document.getElementById("connectBtn").onclick = connectWallet;
 document.getElementById("approveBtn").onclick = approveTRC;
 document.getElementById("claimBtn").onclick = claimRewards;
