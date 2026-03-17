@@ -38,39 +38,26 @@ function status(msg){
 document.getElementById("status").innerText = msg;
 }
 
-// ===== WAIT ETHERS FIX =====
-async function waitForEthers(){
-while(typeof ethers === "undefined"){
-await new Promise(r => setTimeout(r,100));
-}
-}
-
 // ===== CONNECT =====
 async function connectWallet(){
 
 try{
 
-await waitForEthers();
-
-if(!window.ethereum){
-alert("Open in MetaMask / Trust Wallet browser");
-return;
-}
+if (typeof window.ethereum !== "undefined") {
 
 status("Connecting...");
 
 const accounts = await window.ethereum.request({
-method:"eth_requestAccounts"
+method: "eth_requestAccounts"
 });
 
-provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 signer = provider.getSigner();
 
 const network = await provider.getNetwork();
 
-// ✅ Polygon check
 if(network.chainId !== 137){
-alert("Switch to Polygon Network");
+alert("Switch to Polygon network");
 return;
 }
 
@@ -85,28 +72,41 @@ status("Wallet Connected ✅");
 loadBalance();
 loadStakes();
 
+} else {
+
+// 🔥 redirect to Trust Wallet
+status("No wallet detected → Opening Trust Wallet...");
+window.location.href =
+"https://link.trustwallet.com/open_url?url=" + window.location.href;
+
+}
+
 }catch(err){
 status("Error ❌ " + err.message);
 }
 }
 
+// ===== AUTO CONNECT =====
+window.addEventListener("load", async () => {
+if (window.ethereum) {
+const accounts = await window.ethereum.request({ method: "eth_accounts" });
+if (accounts.length > 0) connectWallet();
+}
+});
+
 // ===== BALANCE =====
 async function loadBalance(){
 const user = await signer.getAddress();
 const bal = await tokenContract.balanceOf(user);
-
-document.getElementById("balance").innerText =
-fromWei(bal).toFixed(4);
+document.getElementById("balance").innerText = fromWei(bal).toFixed(4);
 }
 
 // ===== APPROVE =====
 async function approveTRC(){
-
 const amount = document.getElementById("stakeAmount").value;
 if(!amount) return alert("Enter amount");
 
 const tx = await tokenContract.approve(stakingAddress,toWei(amount));
-
 status("Approving...");
 await tx.wait();
 status("Approved ✅");
@@ -114,12 +114,10 @@ status("Approved ✅");
 
 // ===== STAKE =====
 async function stake(method){
-
 const amount = document.getElementById("stakeAmount").value;
 if(!amount) return alert("Enter amount");
 
 const tx = await stakingContract[method](toWei(amount));
-
 status("Staking...");
 await tx.wait();
 
@@ -129,9 +127,7 @@ loadStakes();
 
 // ===== CLAIM =====
 async function claimRewards(){
-
 const tx = await stakingContract.claimAll();
-
 status("Claiming...");
 await tx.wait();
 
