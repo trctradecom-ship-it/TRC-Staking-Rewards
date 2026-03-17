@@ -2,44 +2,31 @@ let provider;
 let signer;
 let stakingContract;
 let trcContract;
-let connected=false;
 
 const stakingAddress="0xDF499393474984A4EB94B868fC72c7a5D66d6d59";
 const trcAddress="0xc08983be707bf4b763e7A0f3cCAD3fd00af6620d";
 
 const stakingABI=[
-
-"function stake30(uint256 amount)",
-"function stake60(uint256 amount)",
-"function stake90(uint256 amount)",
-"function stake150(uint256 amount)",
-"function stake365(uint256 amount)",
-
+"function stake30(uint256)",
+"function stake60(uint256)",
+"function stake90(uint256)",
+"function stake150(uint256)",
+"function stake365(uint256)",
 "function claimAll()",
-"function closeStake(uint256 index)",
-
-"function getUserStakeCount(address)view returns(uint256)",
-
-"function getStakeInfo(address,uint256)view returns(uint256 amount,uint256 weight,uint256 unlockTime,uint256 rewardDebt,uint256 lastClaimTime,bool active)",
-
-"function pendingReward(address,uint256)view returns(uint256)"
-
+"function pendingReward(address,uint256) view returns(uint256)",
+"function getUserStakeCount(address) view returns(uint256)",
+"function getStakeInfo(address,uint256) view returns(uint256,uint256,uint256,uint256,uint256,bool)"
 ];
 
 const trcABI=[
-"function approve(address spender,uint256 amount) returns(bool)"
+"function approve(address,uint256)",
+"function balanceOf(address) view returns(uint256)"
 ];
 
-function updateStatus(msg){
-document.getElementById("status").innerHTML=msg;
-}
+let claimHistory=[];
 
-function checkConnection(){
-if(!connected){
-alert("Connect wallet first");
-return false;
-}
-return true;
+function status(msg){
+document.getElementById("status").innerHTML=msg;
 }
 
 async function connectWallet(){
@@ -49,14 +36,15 @@ alert("Install MetaMask");
 return;
 }
 
-await ethereum.request({method:'eth_requestAccounts'});
+await ethereum.request({method:"eth_requestAccounts"});
 
 provider=new ethers.providers.Web3Provider(window.ethereum);
 signer=provider.getSigner();
 
 const address=await signer.getAddress();
 
-document.getElementById("wallet").innerText="Connected: "+address;
+document.getElementById("wallet").innerText=
+"Connected: "+address;
 
 stakingContract=new ethers.Contract(
 stakingAddress,
@@ -70,119 +58,89 @@ trcABI,
 signer
 );
 
-connected=true;
-
-updateStatus("Wallet Connected ✅");
-
+loadBalance();
 loadStakes();
+
+status("Wallet Connected");
+
+}
+
+async function loadBalance(){
+
+const user=await signer.getAddress();
+
+const bal=await trcContract.balanceOf(user);
+
+document.getElementById("balance").innerText=
+parseFloat(ethers.utils.formatUnits(bal,18)).toFixed(4);
+
 }
 
 async function approveTRC(){
 
-if(!checkConnection()) return;
-
 const amount=document.getElementById("stakeAmount").value;
 
-try{
+const value=ethers.utils.parseUnits(amount,18);
 
-const tx=await trcContract.approve(
-stakingAddress,
-ethers.utils.parseUnits(amount,18)
-);
+const tx=await trcContract.approve(stakingAddress,value);
 
-updateStatus("Approve TX Sent");
+status("Approve sent");
 
 await tx.wait();
 
-updateStatus("Approve Successful ✅");
-
-}catch(e){
-
-updateStatus("Approve Failed ❌");
+status("Approve success");
 
 }
-
-}
-
-async function stake30(){ stake("stake30"); }
-async function stake60(){ stake("stake60"); }
-async function stake90(){ stake("stake90"); }
-async function stake150(){ stake("stake150"); }
-async function stake365(){ stake("stake365"); }
 
 async function stake(method){
 
-if(!checkConnection()) return;
-
 const amount=document.getElementById("stakeAmount").value;
 
-try{
+const value=ethers.utils.parseUnits(amount,18);
 
-const tx=await stakingContract[method](
-ethers.utils.parseUnits(amount,18)
-);
+const tx=await stakingContract[method](value);
 
-updateStatus("Stake TX Sent");
+status("Stake sent");
 
 await tx.wait();
 
-updateStatus("Stake Successful ✅");
+status("Stake success");
 
 loadStakes();
-
-}catch(e){
-
-updateStatus("Stake Failed ❌");
-
-}
 
 }
 
 async function claimRewards(){
 
-if(!checkConnection()) return;
-
-try{
-
 const tx=await stakingContract.claimAll();
 
-updateStatus("Claim TX Sent");
+status("Claim sent");
 
 await tx.wait();
 
-updateStatus("Rewards Claimed ✅");
+status("Rewards claimed");
+
+claimHistory.unshift(new Date().toLocaleString());
+
+if(claimHistory.length>5){
+claimHistory.pop();
+}
+
+renderHistory();
 
 loadStakes();
 
-}catch(e){
-
-updateStatus("Claim Failed ❌");
-
 }
 
-}
+function renderHistory(){
 
-async function closeStake(index){
+let html="";
 
-if(!checkConnection()) return;
+claimHistory.forEach(h=>{
+html+="<li>"+h+"</li>";
+});
 
-try{
-
-const tx=await stakingContract.closeStake(index);
-
-updateStatus("Close Stake TX Sent");
-
-await tx.wait();
-
-updateStatus("Stake Closed ✅");
-
-loadStakes();
-
-}catch(e){
-
-updateStatus("Close Failed ❌");
-
-}
+document.getElementById("claimHistory").innerHTML=html;
 
 }
 
@@ -193,6 +151,7 @@ const user=await signer.getAddress();
 const count=await stakingContract.getUserStakeCount(user);
 
 let html="";
+let totalReward=0;
 
 for(let i=0;i<count;i++){
 
@@ -200,28 +159,28 @@ const stake=await stakingContract.getStakeInfo(user,i);
 
 const reward=await stakingContract.pendingReward(user,i);
 
-const lastClaim=Number(stake.lastClaimTime);
+const amount=ethers.utils.formatUnits(stake[0],18);
+
+const rewardHuman=ethers.utils.formatUnits(reward,18);
+
+totalReward+=parseFloat(rewardHuman);
+
+const lastClaim=Number(stake[4]);
 const nextClaim=lastClaim+(30*24*60*60);
 
 html+=`
 
 <div class="stakeBox">
 
-Index: ${i} <br>
+Stake #${i}<br>
 
-Amount: ${ethers.utils.formatUnits(stake.amount,18)} TRC <br>
+Amount: ${parseFloat(amount).toFixed(4)} TRC<br>
 
-Reward: ${ethers.utils.formatUnits(reward,18)} TRC <br>
+Reward: ${parseFloat(rewardHuman).toFixed(4)} TRC<br>
 
-Last Claim:
-${new Date(lastClaim*1000).toLocaleString()} <br>
+Last Claim: ${new Date(lastClaim*1000).toLocaleString()}<br>
 
-Next Claim:
-${new Date(nextClaim*1000).toLocaleString()} <br>
-
-<button class="closeBtn" onclick="closeStake(${i})">
-Close Stake
-</button>
+Next Claim: ${new Date(nextClaim*1000).toLocaleString()}
 
 </div>
 
@@ -231,4 +190,11 @@ Close Stake
 
 document.getElementById("stakeList").innerHTML=html;
 
+document.getElementById("pendingReward").innerText=
+totalReward.toFixed(4);
+
 }
+
+document.getElementById("connectBtn").onclick=connectWallet;
+document.getElementById("approveBtn").onclick=approveTRC;
+document.getElementById("claimBtn").onclick=claimRewards;
