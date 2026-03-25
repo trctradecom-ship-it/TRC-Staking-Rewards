@@ -7,8 +7,10 @@
 
 <link rel="stylesheet" href="style.css">
 
-<!-- ✅ ETHERS FIRST -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+<!-- ✅ Load Ethers.js and Chart.js via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
 </head>
 
 <body>
@@ -58,11 +60,18 @@
 <ul id="claimHistory"></ul>
 </div>
 
+<!-- Status -->
 <div id="status" class="status"></div>
 
+<!-- Chart Container -->
+<div class="card">
+<h3>Liquidity / Balance Chart</h3>
+<canvas id="liquidityChart" style="height:300px;"></canvas>
 </div>
 
-<script src="app.js"></script>
+<script src="app.js" defer></script>
+
+</div>
 
 </body>
 </html>
